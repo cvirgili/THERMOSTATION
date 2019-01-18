@@ -1,0 +1,15 @@
+{
+    "short_name": "SmartHome",
+    "name": "Smart Home",
+    "icons": [{
+        "src": "icons/boiler-icon-256.png",
+        "type": "image/png",
+        "sizes": "256x256"
+    }],
+    "start_url": "/home",
+    "background_color": "#bdecff",
+    "display": "fullscreen",
+    "orientation": "landscape",
+    "scope": "/",
+    "theme_color": "#bdecff"
+}

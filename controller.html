@@ -1,0 +1,56 @@
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0">
+    <meta name="mobile-web-app-capable" content="yes">
+    <link rel="manifest" href="assets/manifest.json">
+    <link rel="stylesheet" type="text/css" href="/assets/style/style.css">
+    <script type="text/javascript" src="assets/js/jquery-3.3.1.min.js"></script>
+    <script type="text/javascript" src="assets/js/swipe-horizontal.js"></script>
+    <script type="text/javascript" src="assets/js/check-remote.js"></script>
+    <script type="text/javascript" src="assets/js/temp-diagram.js"></script>
+</head>
+
+<body>
+    <div id="container">
+        <div id="monitor" class="no-select wipe">
+            <div class="title">Monitor</div>
+            <div class="row">
+                <p>temp</p>
+                <canvas id="clock" class="canvas"></canvas>
+            </div>
+        </div>
+        <div id="scheduler" class="no-select wipe">
+            <div class="title">Scheduler</div>
+            <div class="row">22.5°<br>55.0%</div>
+        </div>
+        <div id="manual" class="no-select wipe">
+            <div class="title">Manual Mode</div>
+            <div class="row">22.5°<br>55.0%</div>
+        </div>
+        <div id="test" class="no-select wipe">
+            <div class="title">Test 1</div>
+            <div class="row">22.5°<br>55.0%</div>
+        </div>
+        <div id="test-1" class="no-select wipe">
+            <div class="title">Test 2</div>
+            <div class="row">22.5°<br>55.0%</div>
+        </div>
+    </div>
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/assets/js/service-worker.js')
+                .then(function(registration) {
+                    console.log('Registered:', registration);
+                })
+                .catch(function(error) {
+                    console.log('Registration failed: ', error);
+                });
+        }
+        SwipeHorizontal('container', 'wipe');
+        CheckRemote();
+        TempDiagram();
+    </script>
+</body>
+
+</html>
