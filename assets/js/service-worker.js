@@ -9,6 +9,7 @@ self.addEventListener('install', function(event) {
         })
     );
 });
+
 /*
 self.addEventListener('fetch', function(event) {
     event.respondWith(
@@ -38,6 +39,7 @@ function fetchAndCache(url) {
         });
 }
 */
+
 self.addEventListener('fetch', function(event) {
     event.respondWith(
         caches.match(event.request)
