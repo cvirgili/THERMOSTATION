@@ -6,12 +6,6 @@ function CheckRemote() {
         $('.title').css({
             'color': (data.status == '1' ? 'red' : '#bdecff')
         });
-        // if (data.status != stat) {
-        //     $.get('HTTP://192.168.0.10/gpio/' + data.status, function(res) {
-        //         console.log("remote", res);
-        //     });
-        //     stat = data.status;
-        // }
         setTimeout(CheckRemote, 1000);
-    });
+    }).fail(console.log);
 }
