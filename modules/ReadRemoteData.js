@@ -4,7 +4,7 @@ module.exports = class ReadRemoteData {
 
     constructor() {
         this.status = 0;
-        this.boilerrelayurl = 'http://192.168.0.10/gpio/';
+        this.boilerrelayurl = 'http://192.168.1.10/gpio/';
     }
 
     boilerget() {
