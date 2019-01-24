@@ -8,8 +8,12 @@ var bodyParser = require('body-parser');
 var DataHelper = require('./modules/datahelper.js');
 var PORT = 5000;
 var fs = require('fs');
-const RemoteData = require('./modules/ReadRemoteData');
-let remoteData = new RemoteData();
+
+const getremoteurl = 'http://www.virgili.netsons.org/read_boiler_status.php';
+const setremoteurl = 'http://www.virgili.netsons.org/smarttest.php?boiler=';
+const BoilerControl = require('./modules/BoilerControl');
+const boilerControl = new BoilerControl(getremoteurl, setremoteurl);
+
 
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -26,6 +30,6 @@ app.get('/checkremote', (req, res) => {
 
 
 app.listen(PORT, function() {
-    remoteData.loop('http://virgili.netsons.org/read_boiler_status.php', 5000);
+    boilerControl.checkRemote();
     console.log("app listening on port", PORT);
 });

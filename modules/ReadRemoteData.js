@@ -1,5 +1,6 @@
 /*jshint esversion:6*/
 const http = require('http');
+const request = require('request');
 module.exports = class ReadRemoteData {
 
     constructor() {
@@ -7,42 +8,17 @@ module.exports = class ReadRemoteData {
         this.boilerrelayurl = 'http://192.168.1.10/gpio/';
     }
 
-    boilerget() {
-        http.get(this.boilerrelayurl + this.status, function(res) {
-            let data = '';
-            res.on('data', (chunk) => {
-                data += chunk;
-            });
-            res.on('end', () => {
-                console.log('data', data);
-            });
-        }).on('error', (err) => {
-            console.log('req error', err);
-        });
-
-    }
-
-    loop(url, delay) {
-        //'http://virgili.netsons.org/read_boiler_status.php'
-        let restart = () => { this.loop(url, delay); };
-        let setStatus = (s) => {
-            if (this.status != s) {
-                this.status = s;
-                this.boilerget();
+    start(url, delay, cb) {
+        let restart = () => { this.start(url, delay, cb); };
+        let setStatus = (s) => { this.status = s; };
+        request.get(url, (err, res, body) => {
+            console.log("error", err);
+            console.log("res", res);
+            console.log("body", body);
+            if (!err) {
+                setStatus(body);
+                cb(body);
             }
-        };
-        http.get(url, function(res) {
-            let data = '';
-            res.on('data', (chunk) => {
-                data += chunk;
-            });
-            res.on('end', () => {
-                // console.log('data', data);
-                setStatus(data);
-                setTimeout(restart, delay);
-            });
-        }).on('error', (err) => {
-            console.log('req error', err);
             setTimeout(restart, delay);
         });
     }
