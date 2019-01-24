@@ -28,7 +28,6 @@ app.get('/checkremote', (req, res) => {
     res.json({ 'status': remoteData.status });
 });
 
-
 app.listen(PORT, function() {
     boilerControl.checkRemote();
     console.log("app listening on port", PORT);

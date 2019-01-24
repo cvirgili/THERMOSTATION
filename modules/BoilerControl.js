@@ -4,10 +4,11 @@ global._status = 0;
 global._temp = 0.0;
 global._settemp = 0.0;
 global._humi = 0.0;
-
 global._esp01url = "http://192.168.1.10";
+
 const request = require('request');
 const ReadRemoteData = require('./ReadRemoteData');
+const Scheduler = require('./Sheduler');
 
 module.exports = class BoilerControl {
     constructor(getremoteurl, setremoteurl) {
@@ -16,6 +17,11 @@ module.exports = class BoilerControl {
         this.manualurl = "/hand/";
         this.gpiourl = "/gpio/";
         this.remoteControl = new ReadRemoteData();
+        this.scheduler = new Scheduler();
+    }
+
+    getStatus() {
+        return status;
     }
 
     sendCommand(url, val, cb) {
@@ -23,15 +29,16 @@ module.exports = class BoilerControl {
     }
 
     setManual(val) {
-        if (val == _manual) return;
+        if (val == _manual) return val;
         _manual = val;
         this.sendCommand(this.manualurl, val == -1 ? 0 : 1);
-        if (val == -1) return;
+        if (val == -1) return val;
         this.setBoiler(val);
+        return val;
     }
 
     setBoiler(val) {
-        this.sendCommand(this.gpiourl, val, (res) => { _status = res; });
+        this.sendCommand(this.gpiourl, val, (err, res, body) => { _status = body; });
     }
 
     checkRemote() {
@@ -39,12 +46,17 @@ module.exports = class BoilerControl {
         this.remoteControl.start(this.getremoteurl, 5000, setmanual);
     }
 
-    setRemote(val) {
-
+    startScheduler() {
+        request.get(this.setremoteurl + "-1", console.log);
+        //##############################################
+        this.scheduler.start();
+        //##############################################
     }
 
-    checkScheduler() {
-
+    stopScheduler() {
+        //##############################################
+        this.scheduler.start();
+        //##############################################
     }
 
     checkTempAndHumi() {

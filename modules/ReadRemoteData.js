@@ -12,9 +12,9 @@ module.exports = class ReadRemoteData {
         let restart = () => { this.start(url, delay, cb); };
         let setStatus = (s) => { this.status = s; };
         request.get(url, (err, res, body) => {
-            console.log("error", err);
-            console.log("res", res);
             console.log("body", body);
+            console.log("_status", _status);
+
             if (!err) {
                 setStatus(body);
                 cb(body);
