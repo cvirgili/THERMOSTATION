@@ -50,6 +50,7 @@ module.exports = class BoilerControl {
                 if (err) reject("send command error: " + err);
                 else {
                     _status = body;
+                    global.io.emit('status', _status);
                     resolve(_status);
                 }
             });

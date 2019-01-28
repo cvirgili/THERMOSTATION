@@ -9,7 +9,7 @@ var DataHelper = require('./modules/Datahelper');
 var PORT = 5000;
 var fs = require('fs');
 
-const io = require('socket.io')(http);
+global.io = require('socket.io')(http);
 
 const getremoteurl = 'http://www.virgili.netsons.org/read_boiler_status.php';
 const setremoteurl = 'http://www.virgili.netsons.org/smarttest.php?boiler=';
@@ -53,18 +53,6 @@ http.listen(PORT, function() {
 io.on('connection', function(socket) {
     //console.log('socket connected!');
     socket.emit('hello');
-    socket.on('close', function() {
-
-    });
-    socket.on('error', function(err) {
-        console.error(err);
-    });
-
-    socket.on('validationbtn', function(data) {
-        io.emit('validation', data);
-    });
-
-    socket.on('updateform', function(data) {
-        io.emit('update', data);
-    });
+    socket.on('close', console.log);
+    socket.on('error', console.log);
 });
