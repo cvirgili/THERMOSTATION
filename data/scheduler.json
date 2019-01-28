@@ -35,12 +35,12 @@
             "jobs": [{
                 "on": {
                     "trashold": 20.0,
-                    "hour": 7,
-                    "minute": 30
+                    "hour": 0,
+                    "minute": 18
                 },
                 "off": {
-                    "hour": 9,
-                    "minute": 30
+                    "hour": 0,
+                    "minute": 19
                 }
             }, {
                 "on": {

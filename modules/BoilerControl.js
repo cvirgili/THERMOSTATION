@@ -74,8 +74,8 @@ module.exports = class BoilerControl {
         });
     }
 
-    scheduler(val) {
-        this.setBoiler(val).then(() => {
+    schedulerAction(val) {
+        return this.setBoiler(val).then(() => {
             request.get(this.setremoteurl + "-1", () => {
                 this.sendCommand(this.manualurl, 0, console.log);
             });
