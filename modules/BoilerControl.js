@@ -81,7 +81,7 @@ module.exports = class BoilerControl {
 
     stopScheduler() {
         //##############################################
-        this.scheduler.start();
+        this.scheduler.stop();
         //##############################################
     }
 
