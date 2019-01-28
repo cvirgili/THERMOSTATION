@@ -16,6 +16,7 @@ module.exports = class BoilerControl {
         this.setremoteurl = setremoteurl;
         this.manualurl = "/hand/";
         this.gpiourl = "/gpio/";
+        this.dataurl = "/data/";
         this.remoteControl = new ReadRemoteData();
         this.scheduler = new Scheduler();
     }
@@ -61,6 +62,7 @@ module.exports = class BoilerControl {
     checkRemote() {
         let setmanual = (m) => { if (m != -1) this.setManual(m, true); };
         this.remoteControl.loop(this.getremoteurl, 5000, setmanual);
+        this.scheduler.start();
     }
 
     setRemoteStatus(val) {
@@ -72,21 +74,37 @@ module.exports = class BoilerControl {
         });
     }
 
-    startScheduler() {
-        request.get(this.setremoteurl + "-1", console.log);
-        //##############################################
-        this.scheduler.start();
-        //##############################################
+    scheduler(val) {
+        this.setBoiler(val).then(() => {
+            request.get(this.setremoteurl + "-1", () => {
+                this.sendCommand(this.manualurl, 0, console.log);
+            });
+        }).catch(console.log);
+
     }
 
+    startScheduler() {
+        //##############################################
+        this.scheduler.stop();
+        //##############################################
+    }
     stopScheduler() {
         //##############################################
         this.scheduler.stop();
         //##############################################
     }
 
+    //#####################################################
     checkTempAndHumi() {
         //##############################################
+        //read temp & humi from DHT11
+        let temp, humi;
+        let setBoiler = (val) => { this.setBoiler(val); };
+        this.sendCommand(this.dataurl, temp + "-" + _settemp + "-" + humi, (err, x, y) => {
+            if (temp >= _settemp) {
+                setBoiler(0);
+            }
+        });
         //##############################################
     }
 

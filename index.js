@@ -14,7 +14,7 @@ global.io = require('socket.io')(http);
 const getremoteurl = 'http://www.virgili.netsons.org/read_boiler_status.php';
 const setremoteurl = 'http://www.virgili.netsons.org/smarttest.php?boiler=';
 const BoilerControl = require('./modules/BoilerControl');
-const boilerControl = new BoilerControl(getremoteurl, setremoteurl);
+global.boilerControl = new BoilerControl(getremoteurl, setremoteurl);
 
 //app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({ extended: true }));
