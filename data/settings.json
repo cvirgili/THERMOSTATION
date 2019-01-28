@@ -1,0 +1,6 @@
+{
+    "relayurl": "192.168.1.10",
+    "getremoteurl": "http://www.virgili.netsons.org/read_boiler_status.php",
+    "setremoteurl": "http://www.virgili.netsons.org/smarttest.php?boiler=",
+
+}

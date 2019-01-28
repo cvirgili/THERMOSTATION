@@ -1,6 +1,7 @@
 const CACHE_NAME = 'static-cache';
 const urlsToCache = [
     '/home',
+    '/controller.html',
     '/assets/manifest.json',
     '/assets/fonts/Techno LCD.ttf',
     '/assets/style/style.css',

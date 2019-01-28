@@ -31,21 +31,41 @@ module.exports = class BoilerControl {
     setManual(val) {
         if (val == _manual) return val;
         _manual = val;
-        this.sendCommand(this.manualurl, val == -1 ? 0 : 1);
+        this.sendCommand(this.manualurl, val == -1 ? 0 : 1, (err, res, body) => {
+            if (err) console.log(err);
+        });
         if (val == -1) return val;
         this.setBoiler(val);
         return val;
     }
 
     setBoiler(val, cb) {
-        this.sendCommand(this.gpiourl, val, (err, res, body) => {
-            _status = body;
+        return new Promise((resolve, reject) => {
+            this.sendCommand(this.gpiourl, val, (err, res, body) => {
+                if (err) reject("send command error: " + err);
+                else {
+                    _status = body;
+                    resolve(_status);
+                }
+            });
         });
+
     }
 
     checkRemote() {
-        let setmanual = (m) => { this.setManual(m); };
-        this.remoteControl.start(this.getremoteurl, 5000, setmanual);
+        //let setmanual = (m) => { this.setManual(m); };
+        let inst = this;
+        //this.remoteControl.loop(this.getremoteurl, 5000, setmanual);
+        this.remoteControl.loop(this.getremoteurl, 5000, inst.setManual);
+    }
+
+    setRemoteStatus(val) {
+        return new Promise((resolve, reject) => {
+            request.get(this.setremoteurl + val, (err, res, body) => {
+                if (err) reject(res);
+                else resolve(val);
+            });
+        });
     }
 
     startScheduler() {
