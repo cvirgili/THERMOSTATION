@@ -22,5 +22,4 @@ module.exports = class ReadRemoteData {
             setTimeout(restart, delay);
         });
     }
-
 };

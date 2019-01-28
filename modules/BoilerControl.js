@@ -21,7 +21,7 @@ module.exports = class BoilerControl {
     }
 
     getStatus() {
-        return status;
+        return _status;
     }
 
     sendCommand(url, val, cb) {
@@ -37,8 +37,10 @@ module.exports = class BoilerControl {
         return val;
     }
 
-    setBoiler(val) {
-        this.sendCommand(this.gpiourl, val, (err, res, body) => { _status = body; });
+    setBoiler(val, cb) {
+        this.sendCommand(this.gpiourl, val, (err, res, body) => {
+            _status = body;
+        });
     }
 
     checkRemote() {
