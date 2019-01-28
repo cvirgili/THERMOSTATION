@@ -3,11 +3,13 @@
 global.__basedir = __dirname;
 var express = require('express');
 var app = express();
-var http = require('http'); //.Server(app);
+var http = require('http').Server(app);
 var bodyParser = require('body-parser');
 var DataHelper = require('./modules/Datahelper');
 var PORT = 5000;
 var fs = require('fs');
+
+const io = require('socket.io')(http);
 
 const getremoteurl = 'http://www.virgili.netsons.org/read_boiler_status.php';
 const setremoteurl = 'http://www.virgili.netsons.org/smarttest.php?boiler=';
@@ -31,15 +33,38 @@ app.get('/manual', (req, res) => {
     res.sendFile(__dirname + "/manual.html");
 });
 
+//manual
 app.get('/setboiler/:relay', (req, res) => {
-    boilerControl.setBoiler(req.params.relay).then((val) => {
-        console.log("resolve to", val);
-        boilerControl.setManual(1);
-    }).catch(console.log);
+    boilerControl.setManual(req.params.relay, false);
     res.end(req.params.relay);
 });
 
-app.listen(PORT, function() {
+//get status
+app.get('/getstatus', (req, res) => {
+    res.end(boilerControl.getStatus());
+});
+
+http.listen(PORT, function() {
     boilerControl.checkRemote();
     console.log("app listening on port", PORT);
+});
+
+
+io.on('connection', function(socket) {
+    //console.log('socket connected!');
+    socket.emit('hello');
+    socket.on('close', function() {
+
+    });
+    socket.on('error', function(err) {
+        console.error(err);
+    });
+
+    socket.on('validationbtn', function(data) {
+        io.emit('validation', data);
+    });
+
+    socket.on('updateform', function(data) {
+        io.emit('update', data);
+    });
 });

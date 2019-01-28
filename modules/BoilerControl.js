@@ -28,18 +28,23 @@ module.exports = class BoilerControl {
         request.get(_esp01url + url + val, cb);
     }
 
-    setManual(val) {
-        if (val == _manual) return val;
-        _manual = val;
-        this.sendCommand(this.manualurl, val == -1 ? 0 : 1, (err, res, body) => {
-            if (err) console.log(err);
-        });
-        if (val == -1) return val;
-        this.setBoiler(val);
-        return val;
+    setManual(val, isremote) {
+        let doit = () => {
+            if (val == _manual) return val;
+            _manual = val;
+            this.sendCommand(this.manualurl, 1, (err, res, body) => {
+                if (err) console.log(err);
+            });
+            this.setBoiler(val).then((s) => { return s; }).catch(console.log);
+        };
+        if (isremote == false)
+            this.setRemoteStatus(-1).then(doit).catch((res) => { console.log(res); return val; });
+        else
+            doit();
+
     }
 
-    setBoiler(val, cb) {
+    setBoiler(val) {
         return new Promise((resolve, reject) => {
             this.sendCommand(this.gpiourl, val, (err, res, body) => {
                 if (err) reject("send command error: " + err);
@@ -53,10 +58,8 @@ module.exports = class BoilerControl {
     }
 
     checkRemote() {
-        //let setmanual = (m) => { this.setManual(m); };
-        let inst = this;
-        //this.remoteControl.loop(this.getremoteurl, 5000, setmanual);
-        this.remoteControl.loop(this.getremoteurl, 5000, inst.setManual);
+        let setmanual = (m) => { if (m != -1) this.setManual(m, true); };
+        this.remoteControl.loop(this.getremoteurl, 5000, setmanual);
     }
 
     setRemoteStatus(val) {

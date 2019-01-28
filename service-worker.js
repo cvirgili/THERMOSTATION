@@ -1,26 +1,30 @@
+/*jshint esversion:6 */
+
 const CACHE_NAME = 'static-cache';
 const urlsToCache = [
-    '/home',
     '/controller.html',
-    '/assets/manifest.json',
-    '/assets/fonts/Techno LCD.ttf',
-    '/assets/style/style.css',
-    '/assets/js/check-remote.js',
+    '/manual',
+    '/manual.html',
+    '/assets/icons/boiler-icon-256.png',
+    '/assets/images/off.jpg',
+    '/assets/images/on.jpg',
+    '/assets/fonts/TECHNOID.TTF',
     '/assets/js/jquery-3.3.1.min.js',
-    '/assets/js/swipe-horizontal.js',
-    '/assets/js/temp-diagram.js'
+    '/assets/js/sw-init.js',
+    '/assets/js/socket.io.slim.js',
+    '/assets/manifest-manual.json'
 ];
 
 self.addEventListener('install', (e) => {
     let putincache = caches.open(CACHE_NAME).then((cache) => {
-        return cache.addAll(urlsToCache);
+        console.log(cache);
+        return cache.addAll(urlsToCache).then(console.log);
     }).catch(console.log);
-
     e.waitUntil(putincache);
 });
 
 self.addEventListener('fetch', (e) => {
-    console.log(location.origin);
+    console.log(e.request.url);
     if (!e.request.url.match(location.origin)) return;
     let newRes = caches.open(CACHE_NAME).then((cache) => {
         return cache.match(e.request).then((res) => {
@@ -28,9 +32,8 @@ self.addEventListener('fetch', (e) => {
                 console.log(`Serving ${res.url} from cache.`);
                 return res;
             }
-            console.log('res', res);
             return fetch(e.request).then((fetchres) => {
-                cache.put(e.request, fetchres.clone());
+                //cache.put(e.request, fetchres.clone());
                 return fetchres;
             });
         });

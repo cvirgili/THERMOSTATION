@@ -1,12 +1,21 @@
 <html>
 
 <head>
+    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0">
+    <meta name="mobile-web-app-capable" content="yes">
+    <link rel="manifest" href="assets/manifest-manual.json">
     <script type="text/javascript" src="./assets/js/jquery-3.3.1.min.js"></script>
+    <script src="/assets/js/socket.io.slim.js"></script>
+    <script>
+        const socket = io();
+    </script>
     <style>
         html,
         body {
             font-size: 8vw;
             text-align: center;
+            margin: 0;
+            padding: 0;
         }
         
         div {
@@ -15,28 +24,69 @@
         
         button {
             font-size: 6vw;
-            width: 90vw;
+            width: 25vh;
             height: 25vh;
+            background: black;
+        }
+        
+        .bg-image {
+            background-position: center;
+            background-size: contain;
+            background-repeat: no-repeat;
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .off {
+            background-image: url('/assets/images/off.jpg');
+        }
+        
+        .on {
+            background-image: url('/assets/images/on.jpg');
         }
     </style>
 </head>
 
 <body>
     <h1>iHome</h1>
-    <div><button id="relay" onclick="relayOnOff()">TERMOSIFONI OFF</button></div>
+    <div><button id="relay" onclick="relayOnOff()"><span class="bg-image off"></span></button></div>
+    <div id="msg"></div>
     <script>
         var hMode = 0;
         var relay = 0;
 
         function relayOnOff() {
             relay = relay == 0 ? 1 : 0;
-            $.get("/setboiler/" + relay, function(data) {
-                $('#relay').text("TERMOSIFONI " + (data == 1 ? "ON" : "OFF"));
-            }).fail(function() {
-                alert('no connection!');
-            });
+            //$.get("/setboiler/" + relay, setButtonBG).fail(failMsg);
+            $.get("/setboiler/" + relay).fail(failMsg);
         }
+
+        function setButtonBG(data) {
+            relay = data;
+            $("#msg").text('');
+            $('#relay>span').removeClass("on off").addClass("bg-image").addClass(data == 1 ? "on" : "off");
+        }
+
+        function failMsg() {
+            $("#msg").text('no connection!');
+        }
+
+        function checkStatus() {
+            $.get('/getstatus', setButtonBG).fail(failMsg);
+            //setTimeout(checkStatus, 500);
+        }
+
+        socket.on('connect', console.log);
+        socket.on('disconnect', console.log);
+        socket.on('close', console.log);
+        socket.on('error', console.log);
+        socket.on('status', setButtonBG);
+
+        $(checkStatus);
     </script>
+    <script type="text/javascript" src="assets/js/sw-init.js"></script>
+
 </body>
 
 </html>
