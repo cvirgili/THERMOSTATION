@@ -1,0 +1,159 @@
+{
+    "week": [{
+            "name": "Domenica",
+            "id": 0,
+            "jobs": []
+        },
+        {
+            "name": "Lunedì",
+            "id": 1,
+            "jobs": [{
+                "on": {
+                    "trashold": 20.0,
+                    "hour": 7,
+                    "minute": 30
+                },
+                "off": {
+                    "hour": 9,
+                    "minute": 30
+                }
+            }, {
+                "on": {
+                    "trashold": 20.0,
+                    "hour": 23,
+                    "minute": 52
+                },
+                "off": {
+                    "hour": 23,
+                    "minute": 54
+                }
+            }]
+        },
+        {
+            "name": "Martedì",
+            "id": 2,
+            "jobs": [{
+                "on": {
+                    "trashold": 20.0,
+                    "hour": 0,
+                    "minute": 18
+                },
+                "off": {
+                    "hour": 0,
+                    "minute": 19
+                }
+            }, {
+                "on": {
+                    "trashold": 20.0,
+                    "hour": 19,
+                    "minute": 30
+                },
+                "off": {
+                    "hour": 22,
+                    "minute": 30
+                }
+            }]
+        },
+        {
+            "name": "Mercoledì",
+            "id": 3,
+            "jobs": [{
+                "on": {
+                    "trashold": 20.0,
+                    "hour": 7,
+                    "minute": 30
+                },
+                "off": {
+                    "hour": 9,
+                    "minute": 30
+                }
+            }, {
+                "on": {
+                    "trashold": 20.0,
+                    "hour": 19,
+                    "minute": 30
+                },
+                "off": {
+                    "hour": 22,
+                    "minute": 30
+                }
+            }]
+        },
+        {
+            "name": "Giovedì",
+            "id": 4,
+            "jobs": [{
+                "on": {
+                    "trashold": 20.0,
+                    "hour": 7,
+                    "minute": 30
+                },
+                "off": {
+                    "hour": 9,
+                    "minute": 30
+                }
+            }, {
+                "on": {
+                    "trashold": 20.0,
+                    "hour": 19,
+                    "minute": 30
+                },
+                "off": {
+                    "hour": 22,
+                    "minute": 30
+                }
+            }]
+        },
+        {
+            "name": "Venerdì",
+            "id": 5,
+            "jobs": [{
+                "on": {
+                    "trashold": 20.0,
+                    "hour": 7,
+                    "minute": 30
+                },
+                "off": {
+                    "hour": 9,
+                    "minute": 30
+                }
+            }, {
+                "on": {
+                    "trashold": 20.0,
+                    "hour": 19,
+                    "minute": 30
+                },
+                "off": {
+                    "hour": 22,
+                    "minute": 30
+                }
+            }]
+        },
+        {
+            "name": "Sabato",
+            "id": 6,
+            "jobs": [{
+                "on": {
+                    "trashold": 20.0,
+                    "hour": 7,
+                    "minute": 30
+                },
+                "off": {
+                    "hour": 9,
+                    "minute": 30
+                }
+            }, {
+                "on": {
+                    "trashold": 20.0,
+                    "hour": 19,
+                    "minute": 30
+                },
+                "off": {
+                    "hour": 22,
+                    "minute": 30
+                }
+            }]
+        }
+
+    ]
+}
