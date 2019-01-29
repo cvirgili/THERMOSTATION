@@ -10,7 +10,7 @@ global._esp01url = "http://192.168.1.10";
 
 const request = require('request');
 const ReadRemoteData = require('./ReadRemoteData');
-const Scheduler = require('./Sheduler');
+const Scheduler = require('./Scheduler');
 
 module.exports = class BoilerControl {
     constructor(getremoteurl, setremoteurl) {
@@ -85,7 +85,7 @@ module.exports = class BoilerControl {
 
     startScheduler() {
 
-        this.scheduler.start().then(() => {
+        return this.scheduler.start().then(() => {
             _schedulerActive = 1;
             global.io.emit('status', { "relay": _status, "scheduler": _schedulerActive });
             console.log("scheduler started");
