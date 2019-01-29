@@ -1,9 +1,11 @@
 /*jshint esversion:6*/
 global._manual = 0;
+global._schedulerActive = 0;
 global._status = 0;
 global._temp = 0.0;
 global._settemp = 0.0;
 global._humi = 0.0;
+
 global._esp01url = "http://192.168.1.10";
 
 const request = require('request');
@@ -22,7 +24,7 @@ module.exports = class BoilerControl {
     }
 
     getStatus() {
-        return _status;
+        return { "relay": _status, "scheduler": _schedulerActive };
     }
 
     sendCommand(url, val, cb) {
@@ -31,6 +33,7 @@ module.exports = class BoilerControl {
 
     setManual(val, isremote) {
         let doit = () => {
+            this.stopScheduler();
             if (val == _manual) return val;
             _manual = val;
             this.sendCommand(this.manualurl, 1, (err, res, body) => {
@@ -39,7 +42,7 @@ module.exports = class BoilerControl {
             this.setBoiler(val).then((s) => { return s; }).catch(console.log);
         };
         if (isremote == false)
-            this.setRemoteStatus(-1).then(doit).catch((res) => { console.log(res); return val; });
+            this.setRemoteStatus(val).then(doit).catch((res) => { console.log(res); return val; });
         else
             doit();
 
@@ -51,7 +54,7 @@ module.exports = class BoilerControl {
                 if (err) reject("send command error: " + err);
                 else {
                     _status = body;
-                    global.io.emit('status', _status);
+                    global.io.emit('status', { "relay": _status, "scheduler": _schedulerActive });
                     resolve(_status);
                 }
             });
@@ -61,8 +64,9 @@ module.exports = class BoilerControl {
 
     checkRemote() {
         let setmanual = (m) => { if (m != -1) this.setManual(m, true); };
-        this.remoteControl.loop(this.getremoteurl, 5000, setmanual);
-        this.scheduler.start();
+        this.startScheduler().then(() => {
+            this.remoteControl.loop(this.getremoteurl, 5000, setmanual);
+        });
     }
 
     setRemoteStatus(val) {
@@ -75,26 +79,31 @@ module.exports = class BoilerControl {
     }
 
     schedulerAction(val) {
-        return this.setBoiler(val).then(() => {
-            request.get(this.setremoteurl + "-1", () => {
-                this.sendCommand(this.manualurl, 0, console.log);
-            });
-        }).catch(console.log);
-
+        //setta il relay a <val>
+        return this.setBoiler(val).then(console.log).catch(console.log);
     }
 
     startScheduler() {
-        //##############################################
-        this.scheduler.stop();
-        //##############################################
-    }
-    stopScheduler() {
-        //##############################################
-        this.scheduler.stop();
-        //##############################################
+
+        this.scheduler.start().then(() => {
+            _schedulerActive = 1;
+            global.io.emit('status', { "relay": _status, "scheduler": _schedulerActive });
+            console.log("scheduler started");
+            //setta la variabile remota a -1
+            this.setRemoteStatus("-1").then(() => {
+                //spegne icona mano
+                this.sendCommand(this.manualurl, 0, console.log);
+            }).catch(console.log);
+        }).catch(console.log);
     }
 
-    //#####################################################
+    stopScheduler() {
+        this.scheduler.stop().then(() => {
+            _schedulerActive = 0;
+            console.log("scheduler stopped");
+        }).catch(console.log);
+    }
+
     checkTempAndHumi() {
         //##############################################
         //read temp & humi from DHT11

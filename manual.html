@@ -24,18 +24,24 @@
         
         button {
             font-size: 6vw;
-            width: 25vh;
-            height: 25vh;
+            width: 30vh;
+            height: 30vh;
             background: black;
+            border-style: none;
+            border-radius: 50%;
+            padding: 0;
+            color: green;
         }
         
         .bg-image {
             background-position: center;
-            background-size: contain;
+            background-size: 50%;
             background-repeat: no-repeat;
             display: block;
             width: 100%;
             height: 100%;
+            border-radius: 50%;
+            padding: 0;
         }
         
         .off {
@@ -50,22 +56,33 @@
 
 <body>
     <h1>iHome</h1>
-    <div><button id="relay" onclick="relayOnOff()"><span class="bg-image off"></span></button></div>
+    <div><button id="relayStatus" onclick="relayOnOff()"><span class="bg-image off"></span></button></div>
+    <div><button id="scheduler" onclick="startScheduler()">SCHEDULER</button></div>
     <div id="msg"></div>
     <script>
-        var hMode = 0;
-        var relay = 0;
+        var schedulerStatus = 0;
+        var relayStatus = 0;
 
-        function relayOnOff() {
-            relay = relay == 0 ? 1 : 0;
-            //$.get("/setboiler/" + relay, setButtonBG).fail(failMsg);
-            $.get("/setboiler/" + relay).fail(failMsg);
+        function startScheduler() {
+            if (schedulerStatus == 1) return;
+            $.get("/startscheduler").fail(failMsg);
         }
 
-        function setButtonBG(data) {
-            relay = data;
+        function relayOnOff() {
+            relayStatus = relayStatus == 0 ? 1 : 0;
+            $.get("/setboiler/" + relayStatus).fail(failMsg);
+        }
+
+        function setStatus(status) {
+            relayStatus = status.relay;
+            schedulerStatus = status.scheduler;
+            console.log("status", status);
             $("#msg").text('');
-            $('#relay>span').removeClass("on off").addClass("bg-image").addClass(data == 1 ? "on" : "off");
+            $('#relayStatus>span').removeClass("on off").addClass("bg-image").addClass(status.relay == 1 ? "on" : "off");
+            $('#scheduler').css({
+                "color": status.scheduler == 1 ? "green" : "red"
+            });
+            $('#scheduler').text(status.scheduler == 1 ? "SCHEDULER" : "MANUAL MODE");
         }
 
         function failMsg() {
@@ -73,14 +90,14 @@
         }
 
         function checkStatus() {
-            $.get('/getstatus', setButtonBG).fail(failMsg);
+            $.get('/getstatus', setStatus).fail(failMsg);
         }
 
         socket.on('connect', console.log);
         socket.on('disconnect', console.log);
         socket.on('close', console.log);
         socket.on('error', console.log);
-        socket.on('status', setButtonBG);
+        socket.on('status', setStatus);
 
         $(checkStatus);
     </script>

@@ -39,9 +39,14 @@ app.get('/setboiler/:relay', (req, res) => {
     res.end(req.params.relay);
 });
 
+app.get('/startscheduler', (req, res) => {
+    boilerControl.startScheduler();
+    res.end();
+});
+
 //get status
 app.get('/getstatus', (req, res) => {
-    res.end(boilerControl.getStatus());
+    res.json(boilerControl.getStatus());
 });
 
 http.listen(PORT, function() {

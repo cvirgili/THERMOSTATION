@@ -12,7 +12,8 @@ const urlsToCache = [
     '/assets/js/jquery-3.3.1.min.js',
     '/assets/js/sw-init.js',
     '/assets/js/socket.io.slim.js',
-    '/assets/manifest-manual.json'
+    '/assets/manifest-manual.json',
+    '/service-worker.js'
 ];
 
 self.addEventListener('install', (e) => {

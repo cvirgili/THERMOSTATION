@@ -9,17 +9,14 @@ module.exports = class ReadRemoteData {
     loop(url, delay, cb) {
         let inst = this;
         let restart = () => { this.loop(url, delay, cb); };
-        //let setStatus = (s) => { this.status = s; };
         request.get(url, (err, res, body) => {
-            console.log("body", body);
-            console.log("_status", _status);
+            // console.log("body", body);
+            // console.log("_status", _status);
             if (!err) {
-                //setStatus(body);
                 inst.status = body;
                 cb(body);
             }
             setTimeout(restart, delay);
-            //setTimeout(inst.loop, delay, url, delay, cb);
         });
     }
 };
