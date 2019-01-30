@@ -80,8 +80,18 @@
             }, {
                 "on": {
                     "trashold": 20.0,
+                    "hour": 18,
+                    "minute": 10
+                },
+                "off": {
+                    "hour": 18,
+                    "minute": 50
+                }
+            }, {
+                "on": {
+                    "trashold": 20.0,
                     "hour": 19,
-                    "minute": 30
+                    "minute": 40
                 },
                 "off": {
                     "hour": 22,

@@ -15,53 +15,6 @@ module.exports = class Scheduler {
         return new Promise((resolve, reject) => {
             this.schedData = JSON.parse(fs.readFileSync(__basedir + '/data/scheduler.json'));
             console.log("scheduler start");
-            let w = 0;
-            this.schedData.week.forEach((element) => {
-                //console.log("############################################");
-                //console.log("Giorno", w);
-                let nextcount = 1;
-                let HourOn, HourOff, MinuteOn, MinuteOff, nextJob, jOn, jOff, job;
-
-                for (let i = 0; i < element.jobs.length; i++) {
-                    job = element.jobs[i];
-                    //console.log("=>", i);
-
-                    if (nextcount < element.jobs.length) {
-                        nextJob = element.jobs[nextcount];
-                        HourOn = new schedule.Range(job.on.hour, job.off.hour);
-                        MinuteOn = new schedule.Range(job.on.minute, job.off.minute);
-                        HourOff = new schedule.Range(job.off.hour, nextJob.on.hour);
-                        MinuteOff = new schedule.Range(job.off.minute, nextJob.on.minute);
-                    } else {
-                        HourOn = new schedule.Range(job.on.hour, job.off.hour);
-                        MinuteOn = new schedule.Range(job.on.minute, job.off.minute);
-                        HourOff = new schedule.Range(job.off.hour, 23);
-                        MinuteOff = new schedule.Range(job.off.minute, 59);
-                    }
-
-
-                    ruleOn.dayOfWeek = element.id;
-                    ruleOn.hour = HourOn;
-                    ruleOn.minute = MinuteOn;
-
-                    ruleOff.dayOfWeek = element.id;
-                    ruleOff.hour = HourOff;
-                    ruleOff.minute = MinuteOff;
-
-                    // console.log("H ON", HourOn, "M ON", MinuteOn);
-                    // console.log("H OFF", HourOff, "M OFF", MinuteOff);
-                    /*jOn = */
-                    //schedule.scheduleJob(ruleOn, function() { global.boilerControl.schedulerAction(1).then(console.log).catch(console.error); });
-                    /*jOff = */
-                    //schedule.scheduleJob(ruleOff, function() { global.boilerControl.schedulerAction(0).then(console.log).catch(console.error); });
-                    //this.jobs.push(jOn);
-                    //this.jobs.push(jOff);
-                    nextcount++;
-                }
-
-                //console.log("############################################");
-                w++;
-            });
             this.loop();
             resolve(true);
         });
@@ -70,11 +23,18 @@ module.exports = class Scheduler {
     loop() {
         //############################################################
         let reloop = () => { this.loop(); };
-        console.log("day", new Date().getDay());
-        console.log("hour", new Date().getHours());
-        console.log("minute", new Date().getMinutes());
+        let now = new Date();
+        this.schedData.week.find((item) => { return item.id == new Date().getDay(); }).jobs.forEach((job) => {
+            let dateOn = new Date();
+            dateOn.setHours(job.on.hour, job.on.minute);
+            let dateOff = new Date();
+            dateOff.setHours(job.off.hour, job.off.minute);
+            let val = 0;
+            console.log("\nnow > dateOn && now < dateOff", now > dateOn && now < dateOff, "\n");
+            if (now >= dateOn && now <= dateOff) val = 1;
+            global.boilerControl.schedulerAction(val).then(console.log).catch(console.error);
 
-        console.log(this.schedData.week.find((item) => { return item.id == new Date().getDay(); }));
+        });
         setTimeout(reloop, 5000);
         //############################################################
     }
