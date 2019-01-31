@@ -33,13 +33,12 @@ module.exports = class BoilerControl {
 
     setManual(val, isremote) {
         let doit = () => {
-            this.stopScheduler();
-            if (val == _manual) return val;
+            if (_schedulerActive === 1) this.stopScheduler();
             _manual = val;
             this.sendCommand(this.manualurl, 1, (err, res, body) => {
                 if (err) console.log(err);
             });
-            this.setBoiler(val).then((s) => { return s; }).catch(console.log);
+            this.setBoiler(val); //.then((s) => { return s; }).catch(console.log);
         };
         if (isremote == false)
             this.setRemoteStatus(val).then(doit).catch((res) => { console.log(res); return val; });
@@ -50,6 +49,7 @@ module.exports = class BoilerControl {
 
     setBoiler(val) {
         return new Promise((resolve, reject) => {
+            if (val == _status) resolve(_status);
             this.sendCommand(this.gpiourl, val, (err, res, body) => {
                 if (err) reject("send command error: " + err);
                 else {
@@ -64,9 +64,9 @@ module.exports = class BoilerControl {
 
     checkRemote() {
         let setmanual = (m) => { if (m != -1) this.setManual(m, true); };
-        this.startScheduler().then(() => {
-            this.remoteControl.loop(this.getremoteurl, 5000, setmanual);
-        });
+        this.startScheduler(); //.then(() => {
+        this.remoteControl.loop(this.getremoteurl, 5000, setmanual);
+        //});
     }
 
     setRemoteStatus(val) {
@@ -84,7 +84,7 @@ module.exports = class BoilerControl {
     }
 
     startScheduler() {
-
+        if (_schedulerActive == 1) return;
         return this.scheduler.start().then(() => {
             _schedulerActive = 1;
             global.io.emit('status', { "relay": _status, "scheduler": _schedulerActive });
@@ -110,9 +110,7 @@ module.exports = class BoilerControl {
         let temp, humi;
         let setBoiler = (val) => { this.setBoiler(val); };
         this.sendCommand(this.dataurl, temp + "-" + _settemp + "-" + humi, (err, x, y) => {
-            if (temp >= _settemp) {
-                setBoiler(0);
-            }
+            if (temp >= _settemp) setBoiler(0);
         });
         //##############################################
     }

@@ -60,22 +60,23 @@
     <div><button id="scheduler" onclick="startScheduler()">SCHEDULER</button></div>
     <div id="msg"></div>
     <script>
-        var schedulerStatus = 0;
+        //var schedulerStatus = 0;
         var relayStatus = 0;
 
         function startScheduler() {
-            if (schedulerStatus == 1) return;
-            $.get("/startscheduler").fail(failMsg);
+            //if (schedulerStatus == 1) return;
+            $.get("/startscheduler", console.log).fail(failMsg);
         }
 
         function relayOnOff() {
             relayStatus = relayStatus == 0 ? 1 : 0;
+            console.log("relayStatus", relayStatus);
             $.get("/setboiler/" + relayStatus).fail(failMsg);
         }
 
         function setStatus(status) {
             relayStatus = status.relay;
-            schedulerStatus = status.scheduler;
+            //schedulerStatus = status.scheduler;
             console.log("status", status);
             $("#msg").text('');
             $('#relayStatus>span').removeClass("on off").addClass("bg-image").addClass(status.relay == 1 ? "on" : "off");
@@ -89,9 +90,9 @@
             $("#msg").text('no connection!');
         }
 
-        function checkStatus() {
-            $.get('/getstatus', setStatus).fail(failMsg);
-        }
+        // function checkStatus() {
+        //     $.get('/getstatus', setStatus).fail(failMsg);
+        // }
 
         socket.on('connect', console.log);
         socket.on('disconnect', console.log);
@@ -99,7 +100,7 @@
         socket.on('error', console.log);
         socket.on('status', setStatus);
 
-        $(checkStatus);
+        //$(checkStatus);
     </script>
     <script type="text/javascript" src="assets/js/sw-init.js"></script>
 
