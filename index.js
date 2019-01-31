@@ -60,7 +60,8 @@ http.listen(PORT, function() {
 
 io.on('connection', function(socket) {
     //console.log('socket connected!');
-    socket.emit('hello');
+    //manda lo status attuale al client appena connesso
+    io.emit('status', global._status);
     socket.on('close', console.log);
     socket.on('error', console.log);
 });

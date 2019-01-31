@@ -56,8 +56,8 @@ module.exports = class Scheduler {
             return;
         }
         console.log("loop", now.getHours() + "-" + now.getMinutes(), timerObject[now.getHours() + "-" + now.getMinutes()].val);
-        if (timerObject[now.getHours() + "-" + now.getMinutes()].val != global._status)
-            global.boilerControl.schedulerAction(timerObject[now.getHours() + "-" + now.getMinutes()].val).then((val) => { global._status = val; }).catch(console.error);
+        if (timerObject[now.getHours() + "-" + now.getMinutes()].val != global._status.relay)
+            global.boilerControl.schedulerAction(timerObject[now.getHours() + "-" + now.getMinutes()].val).then((val) => { global._status.relay = val; }).catch(console.error);
         let reloop = () => { this.loop(timerObject); };
         this.timeout = setTimeout(reloop, 5000);
         //############################################################
