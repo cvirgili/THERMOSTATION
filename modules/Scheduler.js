@@ -4,7 +4,6 @@ const Status = require('./Status');
 
 module.exports = class Scheduler {
     constructor() {
-        this.jobs = [];
         this.schedData = {};
         this.isStart = false;
         this.timeout = null;
@@ -48,19 +47,18 @@ module.exports = class Scheduler {
     }
 
     loop(timerObject) {
-        //############################################################
         if (this.isStart == false) return;
         let now = new Date();
         if (timerObject.today != now.getDay()) {
-            this.loop(this.getJobsOfTheDay(now.getDay()));
-            return;
+            this.stop().then(() => {
+                clearTimeout(this.timeout);
+                this.start();
+                return;
+            });
         }
-        console.log("loop", now.getHours() + "-" + now.getMinutes(), timerObject[now.getHours() + "-" + now.getMinutes()].val);
-        if (timerObject[now.getHours() + "-" + now.getMinutes()].val != Status.relay)
-            global.boilerControl.setBoiler(timerObject[now.getHours() + "-" + now.getMinutes()].val).then(console.log).catch(console.error);
+        global.boilerControl.setBoiler(timerObject[now.getHours() + "-" + now.getMinutes()].val); //.then(console.log).catch(console.error);
         let reloop = () => { this.loop(timerObject); };
         this.timeout = setTimeout(reloop, 5000);
-        //############################################################
     }
 
     stop() {

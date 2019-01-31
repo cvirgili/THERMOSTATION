@@ -26,10 +26,6 @@ app.get('/home', function(req, res) {
     res.sendFile(__dirname + "/controller.html");
 });
 
-app.get('/checkremote', (req, res) => {
-    res.json({ 'status': remoteData.status });
-});
-
 app.get('/manual', (req, res) => {
     res.sendFile(__dirname + "/manual.html");
 });
@@ -41,18 +37,11 @@ app.get('/setboiler/:relay', (req, res) => {
 });
 
 app.get('/startscheduler', (req, res) => {
-    boilerControl.startScheduler(); //.then(() => {
+    boilerControl.startScheduler();
     console.log("starting scheduler...");
     res.send("ok");
-    //});
 });
 
-//get status
-/*
-app.get('/getstatus', (req, res) => {
-    res.json(boilerControl.getStatus());
-});
-*/
 http.listen(PORT, function() {
     boilerControl.checkRemote();
     console.log("app listening on port", PORT);
