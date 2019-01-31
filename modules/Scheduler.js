@@ -1,6 +1,6 @@
 /*jshint esversion:6*/
 const fs = require('fs');
-const schedule = require('node-schedule');
+const Status = require('./Status');
 
 module.exports = class Scheduler {
     constructor() {
@@ -56,8 +56,8 @@ module.exports = class Scheduler {
             return;
         }
         console.log("loop", now.getHours() + "-" + now.getMinutes(), timerObject[now.getHours() + "-" + now.getMinutes()].val);
-        if (timerObject[now.getHours() + "-" + now.getMinutes()].val != global._status.relay)
-            global.boilerControl.schedulerAction(timerObject[now.getHours() + "-" + now.getMinutes()].val).then((val) => { global._status.relay = val; }).catch(console.error);
+        if (timerObject[now.getHours() + "-" + now.getMinutes()].val != Status.relay)
+            global.boilerControl.setBoiler(timerObject[now.getHours() + "-" + now.getMinutes()].val).then(console.log).catch(console.error);
         let reloop = () => { this.loop(timerObject); };
         this.timeout = setTimeout(reloop, 5000);
         //############################################################

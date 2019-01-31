@@ -14,6 +14,7 @@ global.io = require('socket.io')(http);
 const getremoteurl = 'http://www.virgili.netsons.org/read_boiler_status.php';
 const setremoteurl = 'http://www.virgili.netsons.org/smarttest.php?boiler=';
 const BoilerControl = require('./modules/BoilerControl');
+const Status = require('./modules/Status');
 global.boilerControl = new BoilerControl(getremoteurl, setremoteurl);
 
 //app.set('view engine', 'ejs');
@@ -35,7 +36,7 @@ app.get('/manual', (req, res) => {
 
 //manual
 app.get('/setboiler/:relay', (req, res) => {
-    boilerControl.setManual(req.params.relay, false);
+    boilerControl.setManual(req.params.relay);
     res.end(req.params.relay);
 });
 
@@ -59,9 +60,7 @@ http.listen(PORT, function() {
 
 
 io.on('connection', function(socket) {
-    //console.log('socket connected!');
-    //manda lo status attuale al client appena connesso
-    io.emit('status', global._status);
+    io.emit('status', Status);
     socket.on('close', console.log);
     socket.on('error', console.log);
 });
