@@ -1,3 +1,5 @@
+/*jshint esversion:6*/
+
 global._esp01url = "http://192.168.1.10";
 
 const request = require('request');

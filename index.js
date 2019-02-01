@@ -5,19 +5,15 @@ var express = require('express');
 var app = express();
 var http = require('http').Server(app);
 var bodyParser = require('body-parser');
-var DataHelper = require('./modules/Datahelper');
 var PORT = 5000;
-var fs = require('fs');
 
 global.io = require('socket.io')(http);
-
 const getremoteurl = 'http://www.virgili.netsons.org/read_boiler_status.php';
 const setremoteurl = 'http://www.virgili.netsons.org/smarttest.php?boiler=';
 const BoilerControl = require('./modules/BoilerControl');
 const Status = require('./modules/Status');
 global.boilerControl = new BoilerControl(getremoteurl, setremoteurl);
 
-//app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/assets', express.static(__dirname + '/assets'));
 app.use('/', express.static(__dirname));
@@ -46,7 +42,6 @@ http.listen(PORT, function() {
     boilerControl.checkRemote();
     console.log("app listening on port", PORT);
 });
-
 
 io.on('connection', function(socket) {
     io.emit('status', Status);
