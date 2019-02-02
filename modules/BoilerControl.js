@@ -27,8 +27,8 @@ module.exports = class BoilerControl {
             if (Status.scheduler === 1) this.stopScheduler();
             this.sendCommand(this.manualurl, 1, (err, res, body) => {
                 if (err) console.error(err);
-            });
-            this.setBoiler(val);
+            }).catch(console.error);
+            this.setBoiler(val).catch(console.error);
         };
         this.setRemoteStatus(val).then(doit).catch((err) => { console.error("setRemoteStatus ERROR\n\n", err); });
     }
@@ -37,16 +37,18 @@ module.exports = class BoilerControl {
         return new Promise((resolve, reject) => {
             if (parseInt(val) === Status.relay) {
                 resolve(Status);
-            } else
+            } else {
                 this.sendCommand(this.gpiourl, val, (err, res, body) => {
-                    if (err) reject("send command error: " + err);
-                    else {
+                    if (!err) {
                         Status.relay = parseInt(body);
                         global.io.emit('status', Status);
                         console.log(Status);
                         resolve(Status);
+                    } else {
+                        reject(err);
                     }
                 });
+            }
         });
     }
 
@@ -59,7 +61,7 @@ module.exports = class BoilerControl {
     setRemoteStatus(val) {
         return new Promise((resolve, reject) => {
             request.get(this.setremoteurl + val, (err, res, body) => {
-                if (err) reject(res);
+                if (err) reject(err);
                 else resolve(val);
             });
         });
@@ -90,10 +92,10 @@ module.exports = class BoilerControl {
         //##############################################
         //read temp & humi from DHT11
         let temp, humi;
-        let setBoiler = (val) => { this.setBoiler(val); };
+        let setBoiler = (val) => { this.setBoiler(val).catch(console.error); };
         this.sendCommand(this.dataurl, temp + "-" + _settemp + "-" + humi, (err, x, y) => {
             if (temp >= _settemp) setBoiler(0);
-        });
+        }).catch(console.error);
         //##############################################
     }
 

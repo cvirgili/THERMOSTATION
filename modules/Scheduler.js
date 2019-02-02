@@ -4,7 +4,7 @@ const Status = require('./Status');
 
 module.exports = class Scheduler {
     constructor() {
-        this.schedData = {};
+        //this.schedData = {};
         this.isStart = false;
         this.timeout = null;
     }
@@ -22,7 +22,7 @@ module.exports = class Scheduler {
     getJobsOfTheDay(day) {
         let timerObject = this.resetTimerArray();
         timerObject.today = day;
-        this.schedData.week.find((item) => { return item.id == day; }).jobs.forEach((job) => {
+        Scheduler.schedData.week.find((item) => { return item.id == day; }).jobs.forEach((job) => {
             for (let h = job.on.hour; h <= job.off.hour; h++) {
                 let last = (h === job.off.hour) ? job.off.minute : 60;
                 let first = (h === job.on.hour) ? job.on.minute : 0;
@@ -39,7 +39,6 @@ module.exports = class Scheduler {
         return new Promise((resolve, reject) => {
             if (this.isStart == true) resolve(true);
             this.isStart = true;
-            this.schedData = JSON.parse(fs.readFileSync(__basedir + '/data/scheduler.json'));
             console.log("scheduler start");
             this.loop(this.getJobsOfTheDay(new Date().getDay()));
             resolve(true);
@@ -67,6 +66,12 @@ module.exports = class Scheduler {
             clearTimeout(this.timeout);
             this.isStart = false;
             resolve(true);
+        });
+    }
+
+    saveData(data) {
+        fs.writeFile(__basedir + '/data/scheduler.json', JSON.stringify(data, null, 1), (err) => {
+            if (err) console.error("scheduler json save error");
         });
     }
 };
