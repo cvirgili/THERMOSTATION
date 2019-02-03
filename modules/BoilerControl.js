@@ -19,7 +19,11 @@ module.exports = class BoilerControl {
     }
 
     sendCommand(url, val, cb) {
-        request.get(_esp01url + url + val, cb);
+        request.get(_esp01url + url + val, (err, res, body) => {
+            if (err) Status.relayonline = 0;
+            else Status.relayonline = 1;
+            cb(err, res, body);
+        });
     }
 
     setManual(val) {
@@ -27,28 +31,27 @@ module.exports = class BoilerControl {
             if (Status.scheduler === 1) this.stopScheduler();
             this.sendCommand(this.manualurl, 1, (err, res, body) => {
                 if (err) console.error(err);
-            }).catch(console.error);
-            this.setBoiler(val).catch(console.error);
+            });
+            this.setBoiler(val).then(console.log).catch(console.error);
         };
         this.setRemoteStatus(val).then(doit).catch((err) => { console.error("setRemoteStatus ERROR\n\n", err); });
     }
 
     setBoiler(val) {
         return new Promise((resolve, reject) => {
-            if (parseInt(val) === Status.relay) {
+            if (parseInt(val) === Status.relay)
                 resolve(Status);
-            } else {
-                this.sendCommand(this.gpiourl, val, (err, res, body) => {
-                    if (!err) {
-                        Status.relay = parseInt(body);
-                        global.io.emit('status', Status);
-                        console.log(Status);
-                        resolve(Status);
-                    } else {
-                        reject(err);
-                    }
-                });
-            }
+            this.sendCommand(this.gpiourl, val, (err, res, body) => {
+                if (!err) {
+                    Status.relay = parseInt(body);
+                    global.io.emit('status', Status);
+                    console.log(Status);
+                    resolve(Status);
+                } else {
+                    console.log(Status);
+                    reject(err);
+                }
+            });
         });
     }
 
@@ -76,7 +79,7 @@ module.exports = class BoilerControl {
             //setta la variabile remota a -1
             this.setRemoteStatus("-1").then(() => {
                 //spegne icona mano
-                this.sendCommand(this.manualurl, 0); //, (err, res, body) => { console.log("sendCommand body", body); });
+                this.sendCommand(this.manualurl, 0, console.error); //, (err, res, body) => { console.log("sendCommand body", body); });
             }).catch(console.error);
         }).catch(console.error);
     }
@@ -85,17 +88,17 @@ module.exports = class BoilerControl {
         this.scheduler.stop().then(() => {
             Status.scheduler = 0;
             console.log("scheduler stopped");
-        }).catch(console.error);
+        }).then(console.log).catch(console.error);
     }
 
     checkTempAndHumi() {
         //##############################################
         //read temp & humi from DHT11
         let temp, humi;
-        let setBoiler = (val) => { this.setBoiler(val).catch(console.error); };
+        let setBoiler = (val) => { this.setBoiler(val).then(console.log).catch(console.error); };
         this.sendCommand(this.dataurl, temp + "-" + _settemp + "-" + humi, (err, x, y) => {
-            if (temp >= _settemp) setBoiler(0);
-        }).catch(console.error);
+            if (temp >= _settemp) setBoiler(0).then(console.log).catch(console.log);
+        });
         //##############################################
     }
 

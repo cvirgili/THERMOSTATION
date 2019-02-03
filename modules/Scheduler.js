@@ -55,7 +55,7 @@ module.exports = class Scheduler {
                 return;
             });
         }
-        global.boilerControl.setBoiler(timerObject[now.getHours() + "-" + now.getMinutes()].val).catch(console.error); //.then(console.log).catch(console.error);
+        global.boilerControl.setBoiler(timerObject[now.getHours() + "-" + now.getMinutes()].val).then(console.log).catch(console.error);
         let reloop = () => { this.loop(timerObject); };
         this.timeout = setTimeout(reloop, 5000);
     }
