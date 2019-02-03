@@ -1,9 +1,9 @@
 /*jshint esversion:6*/
-Status = {};
-Status.relay = 0;
-Status.relayonline = 0;
-Status.scheduler = 0;
-Status.temp = 0;
-Status.actualTreshold = 0;
-Status.humi = 0;
-exports.Status;
+exports = {
+    "relay": 0,
+    "relayonline": 0,
+    "scheduler": 0,
+    "temp": 0,
+    "actualTreshold": 0,
+    "humi": 0
+};

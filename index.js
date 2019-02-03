@@ -11,9 +11,9 @@ global.io = require('socket.io')(http);
 const getremoteurl = 'http://www.virgili.netsons.org/read_boiler_status.php';
 const setremoteurl = 'http://www.virgili.netsons.org/smarttest.php?boiler=';
 const BoilerControl = require('./modules/BoilerControl');
+const BoilerController = require('./modules/BoilerController');
 const Status = require('./modules/Status');
 const Scheduler = require('./modules/Scheduler');
-global.boilerControl = new BoilerControl(getremoteurl, setremoteurl);
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/assets', express.static(__dirname + '/assets'));
@@ -33,12 +33,14 @@ app.get('/schedulerdata', (req, res) => {
 
 //manual
 app.get('/setboiler/:relay', (req, res) => {
-    boilerControl.setManual(req.params.relay);
+    // boilerControl.setManual(req.params.relay);
+    BoilerController.setManual(req.params.relay);
     res.end(req.params.relay);
 });
 
 app.get('/startscheduler', (req, res) => {
-    boilerControl.startScheduler();
+    // boilerControl.startScheduler();
+    BoilerController.startScheduler();
     console.log("starting scheduler...");
     res.send("ok");
 });
@@ -46,7 +48,9 @@ app.get('/startscheduler', (req, res) => {
 http.listen(PORT, function() {
     console.log("app listening on port", PORT);
     Scheduler.schedData = JSON.parse(fs.readFileSync(__basedir + '/data/scheduler.json'));
-    boilerControl.checkRemote();
+    //boilerControl = new BoilerControl(getremoteurl, setremoteurl);
+    //boilerControl.init();
+    BoilerController.init();
 });
 
 io.on('connection', function(socket) {

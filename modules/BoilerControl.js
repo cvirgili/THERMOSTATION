@@ -15,15 +15,34 @@ module.exports = class BoilerControl {
         this.manualurl = "/hand/";
         this.gpiourl = "/gpio/";
         this.dataurl = "/data/";
+        Status.relay = 0;
+        Status.relayonline = 0;
+        Status.scheduler = 0;
+    }
+
+    init() {
         this.scheduler = new Scheduler();
+        this.checkRemote();
+        console.log("manualurl");
+        this.sendCommand(this.manualurl, 0, (err, res, body) => {
+            if (!err)
+                this.sendCommand(this.gpiourl, 0, (err, res, body) => {
+                    console.log("gpiourl");
+                    if (!err) {
+                        Status.relay = 0;
+                        Status.relayonline = 1;
+                        Status.scheduler = 0;
+                        console.log("init", Status);
+                    } else {
+                        console.error("gpio error", Status);
+                    }
+                });
+            else console.error("manual error", err, "\n", Status);
+        });
     }
 
     sendCommand(url, val, cb) {
-        request.get(_esp01url + url + val, (err, res, body) => {
-            if (err) Status.relayonline = 0;
-            else Status.relayonline = 1;
-            cb(err, res, body);
-        });
+        request.get(_esp01url + url + val, cb);
     }
 
     setManual(val) {
@@ -56,6 +75,7 @@ module.exports = class BoilerControl {
     }
 
     checkRemote() {
+        console.log("checkRemote");
         let setmanual = (m) => { if (m != -1) this.setManual(m); };
         this.startScheduler();
         ReadRemoteData.loop(this.getremoteurl, 5000, setmanual);
@@ -79,7 +99,7 @@ module.exports = class BoilerControl {
             //setta la variabile remota a -1
             this.setRemoteStatus("-1").then(() => {
                 //spegne icona mano
-                this.sendCommand(this.manualurl, 0, console.error); //, (err, res, body) => { console.log("sendCommand body", body); });
+                this.sendCommand(this.manualurl, 0, console.error);
             }).catch(console.error);
         }).catch(console.error);
     }
