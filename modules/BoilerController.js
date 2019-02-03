@@ -11,6 +11,7 @@ module.exports = class BoilerController {
 
     static settimeout(to) {
         this.timeout = to;
+
     }
 
     static clearTimeout() {
