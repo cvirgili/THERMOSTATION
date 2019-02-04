@@ -1,6 +1,6 @@
 /*jshint esversion:6*/
-exports = {
-    "relay": 0,
+exports.status = {
+    "relay": -1,
     "relayonline": 0,
     "scheduler": 0,
     "temp": 0,

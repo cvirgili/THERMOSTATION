@@ -12,7 +12,7 @@ const getremoteurl = 'http://www.virgili.netsons.org/read_boiler_status.php';
 const setremoteurl = 'http://www.virgili.netsons.org/smarttest.php?boiler=';
 const BoilerControl = require('./modules/BoilerControl');
 const BoilerController = require('./modules/BoilerController');
-const Status = require('./modules/Status');
+const Status = require('./modules/Status').status;
 const Scheduler = require('./modules/Scheduler');
 
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -47,7 +47,8 @@ app.get('/startscheduler', (req, res) => {
 
 http.listen(PORT, function() {
     console.log("app listening on port", PORT);
-    Scheduler.schedData = JSON.parse(fs.readFileSync(__basedir + '/data/scheduler.json'));
+    BoilerController.scheduler = new Scheduler();
+    //Scheduler.schedData = JSON.parse(fs.readFileSync(__basedir + '/data/scheduler.json'));
     //boilerControl = new BoilerControl(getremoteurl, setremoteurl);
     //boilerControl.init();
     BoilerController.init();

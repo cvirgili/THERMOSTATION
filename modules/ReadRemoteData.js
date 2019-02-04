@@ -14,6 +14,7 @@ module.exports = class ReadRemoteData {
             if (!err) {
                 cb(body);
             }
+            clearTimeout(ReadRemoteData.timeout);
             settimeout();
         });
     }

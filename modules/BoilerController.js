@@ -4,14 +4,13 @@ const fs = require('fs');
 const request = require('request');
 const ReadRemoteData = require('./ReadRemoteData');
 const Scheduler = require('./Scheduler');
-const Status = require('./Status');
+const Stat = require('./Status');
+const Status = Stat.status;
 const settings = JSON.parse(fs.readFileSync(__basedir + '/data/Settings.json'));
-
+const relayvalues = [0, 1];
 module.exports = class BoilerController {
-
     static settimeout(to) {
         this.timeout = to;
-
     }
 
     static clearTimeout() {
@@ -20,11 +19,11 @@ module.exports = class BoilerController {
 
     static init() {
         this.timeout = null;
-        //this.scheduler = new Scheduler(true);
-        this.setRelay(settings.gpiourl, 0).then((v) => {
+        this.setRelay(0).then((v) => {
             Status.relayonline = 1;
             this.sendCommand(settings.setremoteurl, -1).then(() => {
                 this.startScheduler();
+                this.checkRemote();
             }).catch((err) => { console.error("init.sendCommand", err); });
         }).catch((err) => {
             Status.relayonline = 0;
@@ -33,11 +32,19 @@ module.exports = class BoilerController {
     }
 
     static startScheduler() {
-        scheduler.start().then(() => { Status.scheduler = 1; }).catch((err) => { console.error("scheduler start error", err); });
+        this.scheduler.start().then(() => {
+            Status.scheduler = 1;
+            global.io.emit('status', Status);
+            this.sendCommand(settings.esp01url + settings.manualurl, 0).catch(console.error);
+        }).catch((err) => { console.error("scheduler start error", err); });
     }
 
     static stopScheduler() {
-        scheduler.stop().then(() => { Status.scheduler = 0; }).catch((err) => { console.error("scheduler stop error", err); });
+
+        this.scheduler.stop().then(() => {
+            Status.scheduler = 0;
+            global.io.emit('status', Status);
+        }).catch((err) => { console.error("scheduler stop error", err); });
     }
 
     static sendCommand(url, val) {
@@ -46,18 +53,24 @@ module.exports = class BoilerController {
             let myreject = (x) => { reject(x); };
             request.get(url + val, (err, res, body) => {
                 if (err) myreject(err);
-                else myresolve(body);
+                else myresolve(val);
             });
         });
     }
 
     static setRelay(val) {
         if (val == Status.relay) return new Promise((resolve, reject) => { resolve(val); });
-        else return this.sendCommand(settings.esp01url + settings.gpiourl, val).then((v) => {
-            Status.relay = v;
-            console.log(Status);
+        else return this.sendCommand(settings.setremoteurl, -1).then(() => {
+            this.sendCommand(settings.esp01url + settings.gpiourl, val).then((v) => {
+                Status.relay = parseInt(val);
+                //request.post("http://www.virgili.netsons.org/smarttest.php").form({ status: JSON.stringify(Status) });
+                console.log(Status);
+                global.io.emit('status', Status);
+            }).catch((err) => {
+                console.error("setRelay error", err);
+            });
         }).catch((err) => {
-            console.error("setRelay error", err);
+            console.error("setRemote error", err);
         });
     }
 
@@ -75,8 +88,7 @@ module.exports = class BoilerController {
     static checkRemote() {
         ReadRemoteData.loop(settings.getremoteurl, 5000, (val) => {
             if (parseInt(val) != -1 && parseInt(val) != Status.relay) {
-                this.setRelay(parseInt(val));
-                this.setManual();
+                this.setManual(parseInt(val));
             }
         });
     }

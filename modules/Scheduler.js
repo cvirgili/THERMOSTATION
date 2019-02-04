@@ -4,8 +4,8 @@ const BoilerController = require('./BoilerController');
 
 module.exports = class Scheduler {
 
-    constructor(ok) {
-        this.schedData = {};
+    constructor() {
+        //this.schedData = {};
         this.isStart = false;
         this.timeout = null;
     }
@@ -23,7 +23,7 @@ module.exports = class Scheduler {
     getJobsOfTheDay(day) {
         let timerObject = this.resetTimerArray();
         timerObject.today = day;
-        this.schedData.week.find((item) => { return item.id == day; }).jobs.forEach((job) => {
+        Scheduler.schedData.week.find((item) => { return item.id == day; }).jobs.forEach((job) => {
             for (let h = job.on.hour; h <= job.off.hour; h++) {
                 let last = (h === job.off.hour) ? job.off.minute : 60;
                 let first = (h === job.on.hour) ? job.on.minute : 0;
@@ -39,7 +39,8 @@ module.exports = class Scheduler {
     start() {
         return new Promise((resolve, reject) => {
             if (this.isStart == true) resolve(true);
-            this.schedData = JSON.parse(fs.readFileSync(__basedir + '/data/scheduler.json'));
+            //this.schedData = JSON.parse(fs.readFileSync(__basedir + '/data/scheduler.json'));
+            Scheduler.schedData = JSON.parse(fs.readFileSync(__basedir + '/data/scheduler.json'));
             this.isStart = true;
             console.log("scheduler start");
             this.loop(this.getJobsOfTheDay(new Date().getDay()));
@@ -58,7 +59,7 @@ module.exports = class Scheduler {
             });
         }
         //global.boilerControl.setBoiler(timerObject[now.getHours() + "-" + now.getMinutes()].val).then(console.log).catch(console.error);
-        BoilerController.setRelay(timerObject[now.getHours() + "-" + now.getMinutes()].val).then(console.log).catch(console.error);
+        BoilerController.setRelay(timerObject[now.getHours() + "-" + now.getMinutes()].val).catch(console.error);
         let reloop = () => { this.loop(timerObject); };
         this.timeout = setTimeout(reloop, 5000);
     }

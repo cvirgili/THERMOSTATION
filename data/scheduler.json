@@ -21,11 +21,11 @@
                 "on": {
                     "treshold": 20.0,
                     "hour": 23,
-                    "minute": 52
+                    "minute": 0
                 },
                 "off": {
                     "hour": 23,
-                    "minute": 54
+                    "minute": 41
                 }
             }]
         },
