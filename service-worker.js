@@ -2,6 +2,7 @@
 
 const CACHE_NAME = 'static-cache';
 const urlsToCache = [
+    '.',
     '/controller.html',
     '/manual',
     '/manual.html',
@@ -18,9 +19,8 @@ const urlsToCache = [
 
 self.addEventListener('install', (e) => {
     let putincache = caches.open(CACHE_NAME).then((cache) => {
-        console.log(cache);
-        return cache.addAll(urlsToCache).then(console.log);
-    }).catch(console.log);
+        return cache.addAll(urlsToCache);
+    }).catch(console.error);
     e.waitUntil(putincache);
 });
 
@@ -30,7 +30,7 @@ self.addEventListener('fetch', (e) => {
     let newRes = caches.open(CACHE_NAME).then((cache) => {
         return cache.match(e.request).then((res) => {
             if (res) {
-                console.log(`Serving ${res.url} from cache.`);
+                console.info(`Serving ${res.url} from cache.`);
                 return res;
             }
             return fetch(e.request).then((fetchres) => {

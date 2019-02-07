@@ -8,7 +8,7 @@
     }],
     "start_url": "/manual",
     "background_color": "#000000",
-    "display": "fullscreen",
+    "display": "standalone",
     "orientation": "portrait",
     "scope": "/",
     "theme_color": "#000000"
