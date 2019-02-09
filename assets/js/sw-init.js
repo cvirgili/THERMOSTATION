@@ -15,8 +15,13 @@ window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     // Stash the event so it can be triggered later.
     deferredPrompt = e;
-
-    var inst = prompt("Installare laPWA?", "y / n");
-
-    if (inst == "y") prompt("OK INSTALLO...");
 });
+
+function install() {
+    alert('install...');
+    deferredPrompt.prompt();
+};
+
+function closeinstall() {
+    $(".popup").hide(0);
+};

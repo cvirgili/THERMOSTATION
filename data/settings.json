@@ -4,5 +4,6 @@
     "gpiourl" : "/gpio/",
     "dataurl" : "/data/",
     "setremoteurl" : "http://www.virgili.netsons.org/smarttest.php?boiler=",
+    "savedataremoteurl" : "http://www.virgili.netsons.org/save-thermostation-data.php",
     "getremoteurl" : "http://www.virgili.netsons.org/read_boiler_status.php"
 }

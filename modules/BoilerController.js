@@ -21,10 +21,8 @@ module.exports = class BoilerController {
         this.timeout = null;
         this.setRelay(0).then((v) => {
             Status.relayonline = 1;
-            this.sendCommand(settings.setremoteurl, -1).then(() => {
-                this.startScheduler();
-                this.checkRemote();
-            }).catch((err) => { console.error("init.sendCommand", err); });
+            this.startScheduler();
+            this.checkRemote();
         }).catch((err) => {
             Status.relayonline = 0;
             this.settimeout(setTimeout(this.init, 5000));
@@ -34,15 +32,16 @@ module.exports = class BoilerController {
     static startScheduler() {
         this.scheduler.start().then(() => {
             Status.scheduler = 1;
+            this.sendStatusToRemote().catch((err) => { console.error("sendStatusToRemote error", err); });
             global.io.emit('status', Status);
             this.sendCommand(settings.esp01url + settings.manualurl, 0).catch(console.error);
         }).catch((err) => { console.error("scheduler start error", err); });
     }
 
     static stopScheduler() {
-
         this.scheduler.stop().then(() => {
             Status.scheduler = 0;
+            this.sendStatusToRemote().catch((err) => { console.error("sendStatusToRemote error", err); });
             global.io.emit('status', Status);
         }).catch((err) => { console.error("scheduler stop error", err); });
     }
@@ -58,13 +57,24 @@ module.exports = class BoilerController {
         });
     }
 
+    static sendStatusToRemote() {
+        return new Promise((resolve, reject) => {
+            let myresolve = (x) => { resolve(x); };
+            let myreject = (x) => { reject(x); };
+            request.post(settings.savedataremoteurl, { form: JSON.stringify(Status) }, (err, res, body) => {
+                if (err) myreject(err);
+                else myresolve(Status);
+            });
+        });
+    }
+
     static setRelay(val) {
         if (val == Status.relay) return new Promise((resolve, reject) => { resolve(val); });
         else return this.sendCommand(settings.setremoteurl, -1).then(() => {
             this.sendCommand(settings.esp01url + settings.gpiourl, val).then((v) => {
                 Status.relay = parseInt(val);
-                //request.post("http://www.virgili.netsons.org/smarttest.php").form({ status: JSON.stringify(Status) });
-                console.log(Status);
+                //synch remote data
+                this.sendStatusToRemote().catch(console.error);
                 global.io.emit('status', Status);
             }).catch((err) => {
                 console.error("setRelay error", err);
@@ -86,9 +96,10 @@ module.exports = class BoilerController {
     }
 
     static checkRemote() {
-        ReadRemoteData.loop(settings.getremoteurl, 5000, (val) => {
-            if (parseInt(val) != -1 && parseInt(val) != Status.relay) {
-                this.setManual(parseInt(val));
+        ReadRemoteData.loop(settings.getremoteurl, 5000, (res) => {
+            let status = JSON.parse(res);
+            if (parseInt(status.remoterelay) != -1 && parseInt(status.remoterelay) != Status.relay) {
+                this.setManual(parseInt(status.remoterelay));
             }
         });
     }
