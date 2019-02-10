@@ -65,7 +65,8 @@
     <div><button id="scheduler" onclick="startScheduler()">SCHEDULER</button></div>
     <div id="msg"></div>
     <script>
-        var isLocal = true;
+        var isLocal = true,
+            issettingdata = false;
         var relayStatus = 0;
         let Status = {
             "relay": -1,
@@ -91,16 +92,19 @@
 
             if (!isLocal) {
                 Status.remoterelay = 1;
+                Status.scheduler = 0;
                 setRemoteData();
             } else
                 $.get("https://192.168.1.100:5000/setboiler/" + relayStatus).fail(failMsg);
         }
 
         function setRemoteData() {
+            issettingdata = true;
             console.info("STATUS===>", Status);
             $.post("https://virgili.netsons.org/save-thermostation-data.php",
                 JSON.stringify(Status), (res) => {
                     setStatus(JSON.parse(res));
+                    issettingdata = false;
                 });
         }
 
@@ -152,6 +156,7 @@
     </script>
     <script>
         let interval = setInterval(function() {
+            if (issettingdata) return;
             if (!isLocal) {
                 $.get("https://virgili.netsons.org/read_boiler_status.php", (res) => {
                     setStatus(JSON.parse(res));
