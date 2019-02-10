@@ -63,6 +63,7 @@
             z-index: 100;
             background: rgba(0, 0, 0, 0.589);
             padding-top: 30%;
+            display: none;
         }
         
         .close {
@@ -101,7 +102,7 @@
 <body>
     <div class="popup">
         <div class="noselect close" onclick="closeinstall()">X</div>
-        <button ontouchstart="install()">install</button>
+        <button onclick="install()">install</button>
     </div>
     <h1>iHome</h1>
     <div><button id="relayStatus" onclick="relayOnOff()"><span class="bg-image off"></span></button></div>

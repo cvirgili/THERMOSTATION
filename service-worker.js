@@ -2,11 +2,7 @@
 
 const CACHE_NAME = 'static-cache';
 const urlsToCache = [
-    '.',
-    '/controller.html',
     '/manual',
-    '/manual.html',
-    '/assets/icons/boiler-icon-256.png',
     '/assets/images/off.jpg',
     '/assets/images/on.jpg',
     '/assets/fonts/TECHNOID.TTF',
@@ -34,7 +30,7 @@ self.addEventListener('fetch', (e) => {
                 return res;
             }
             return fetch(e.request).then((fetchres) => {
-                //cache.put(e.request, fetchres.clone());
+                cache.put(e.request, fetchres.clone());
                 return fetchres;
             });
         });

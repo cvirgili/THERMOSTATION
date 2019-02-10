@@ -3,17 +3,28 @@
 global.__basedir = __dirname;
 var express = require('express');
 var app = express();
-var http = require('http').Server(app);
+//var http = require('http').Server(app);
+var http = require('http');
+const https = require('https');
 var bodyParser = require('body-parser');
 var PORT = 5000;
 const fs = require('fs');
-global.io = require('socket.io')(http);
+//global.io = require('socket.io')(http);
+//global.io = require('socket.io')(https);
 const getremoteurl = 'http://www.virgili.netsons.org/read_boiler_status.php';
 const setremoteurl = 'http://www.virgili.netsons.org/smarttest.php?boiler=';
 const BoilerControl = require('./modules/BoilerControl');
 const BoilerController = require('./modules/BoilerController');
 const Status = require('./modules/Status').status;
 const Scheduler = require('./modules/Scheduler');
+const options = {
+    key: fs.readFileSync('file.pem'),
+    cert: fs.readFileSync('file.crt')
+};
+
+//const server = https.createServer(options, app);
+const server = http.createServer(app);
+global.io = require('socket.io')(server);
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/assets', express.static(__dirname + '/assets'));
@@ -45,12 +56,15 @@ app.get('/startscheduler', (req, res) => {
     res.send("ok");
 });
 
-http.listen(PORT, function() {
-    console.log("app listening on port", PORT);
+// http.listen(PORT, () => {
+//     console.log("app listening on port", PORT);
+//     BoilerController.scheduler = new Scheduler();
+//     BoilerController.init();
+// });
+
+server.listen(PORT, function() {
+    console.log('Example app listening on port 3000! Go to https://localhost:3000/')
     BoilerController.scheduler = new Scheduler();
-    //Scheduler.schedData = JSON.parse(fs.readFileSync(__basedir + '/data/scheduler.json'));
-    //boilerControl = new BoilerControl(getremoteurl, setremoteurl);
-    //boilerControl.init();
     BoilerController.init();
 });
 
