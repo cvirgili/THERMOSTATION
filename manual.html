@@ -63,7 +63,7 @@
             z-index: 100;
             background: rgba(0, 0, 0, 0.589);
             padding-top: 30%;
-            display: none;
+            /* display: none; */
         }
         
         .close {
@@ -79,6 +79,7 @@
             display: block;
             font-size: 20px;
             cursor: pointer;
+            z-index: 200;
         }
         
         .noselect {
@@ -136,17 +137,21 @@
         }
 
         function failMsg() {
+            socket.close();
             $("#msg").text('no connection!');
         }
 
+        function closeinstall() {
+            $(".popup").hide(0);
+        };
         // function checkStatus() {
         //     $.get('/getstatus', setStatus).fail(failMsg);
         // }
 
         socket.on('connect', console.log);
-        socket.on('disconnect', console.log);
-        socket.on('close', console.log);
-        socket.on('error', console.log);
+        socket.on('disconnect', failMsg);
+        socket.on('close', failMsg);
+        socket.on('error', failMsg);
         socket.on('status', setStatus);
         socket.on('prestatus', setStatus);
 
