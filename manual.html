@@ -4,11 +4,6 @@
     <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0">
     <meta name="mobile-web-app-capable" content="yes">
     <link rel="manifest" href="assets/manifest-manual.json">
-    <script type="text/javascript" src="./assets/js/jquery-3.3.1.min.js"></script>
-    <script src="/assets/js/socket.io.slim.js"></script>
-    <script>
-        const socket = io();
-    </script>
     <style>
         html,
         body {
@@ -52,83 +47,67 @@
         .on {
             background-image: url('/assets/images/on.jpg');
         }
-        
-        .popup {
-            margin: 0;
-            width: 100%;
-            height: 100%;
-            position: fixed;
-            left: 0;
-            top: 0;
-            z-index: 100;
-            background: rgba(0, 0, 0, 0.589);
-            padding-top: 30%;
-            /* display: none; */
-        }
-        
-        .close {
-            width: 25px;
-            height: 25px;
-            position: absolute;
-            right: 0;
-            top: 0;
-            margin: 0;
-            padding: 0;
-            background: red;
-            color: white;
-            display: block;
-            font-size: 20px;
-            cursor: pointer;
-            z-index: 200;
-        }
-        
-        .noselect {
-            -webkit-touch-callout: none;
-            /* iOS Safari */
-            -webkit-user-select: none;
-            /* Safari */
-            -khtml-user-select: none;
-            /* Konqueror HTML */
-            -moz-user-select: none;
-            /* Firefox */
-            -ms-user-select: none;
-            /* Internet Explorer/Edge */
-            user-select: none;
-            /* Non-prefixed version, currently
-                                  supported by Chrome and Opera */
-        }
     </style>
+    <script type="text/javascript" src="./assets/js/jquery-3.3.1.min.js"></script>
+    <script src="/assets/js/socket.io.slim.js"></script>
+    <script>
+        //NODE JS APP MUST BE SERVED ON HTTPS PROTOCOL
+        const socket = io('https://192.168.1.100:5000', {
+            rejectUnauthorized: false
+        });
+    </script>
 </head>
 
 <body>
-    <div class="popup">
-        <div class="noselect close" onclick="closeinstall()">X</div>
-        <button onclick="install()">install</button>
-    </div>
+
     <h1>iHome</h1>
     <div><button id="relayStatus" onclick="relayOnOff()"><span class="bg-image off"></span></button></div>
     <div><button id="scheduler" onclick="startScheduler()">SCHEDULER</button></div>
     <div id="msg"></div>
     <script>
-        //var schedulerStatus = 0;
+        var isLocal = true;
         var relayStatus = 0;
+        let Status = {
+            "relay": -1,
+            "remoterelay": -1,
+            "relayonline": 0,
+            "scheduler": 0,
+            "temp": 0,
+            "actualTreshold": 0,
+            "humi": 0
+        };
 
         function startScheduler() {
-            //if (schedulerStatus == 1) return;
-            $.get("/startscheduler", console.log).fail(failMsg);
+            if (!isLocal) {
+                Status.scheduler = 1;
+                setRemoteData();
+            } else
+                $.get("https://192.168.1.100:5000/startscheduler", console.log).fail(failMsg);
         }
 
         function relayOnOff() {
             relayStatus = relayStatus == 0 ? 1 : 0;
             console.log("relayStatus", relayStatus);
-            $.get("/setboiler/" + relayStatus).fail(failMsg);
+
+            if (!isLocal) {
+                Status.remoterelay = 1;
+                setRemoteData();
+            } else
+                $.get("https://192.168.1.100:5000/setboiler/" + relayStatus).fail(failMsg);
+        }
+
+        function setRemoteData() {
+            console.info("STATUS===>", Status);
+            $.post("https://virgili.netsons.org/save-thermostation-data.php",
+                JSON.stringify(Status), (res) => {
+                    setStatus(JSON.parse(res));
+                });
         }
 
         function setStatus(status) {
+            Status = status;
+            console.log("Status", Status);
             relayStatus = status.relay;
-            //schedulerStatus = status.scheduler;
-            console.log("status", status);
-            $("#msg").text('');
             $('#relayStatus>span').removeClass("on off").addClass("bg-image").addClass(status.relay == 1 ? "on" : "off");
             $('#scheduler').css({
                 "color": status.scheduler == 1 ? "green" : "red"
@@ -136,26 +115,49 @@
             $('#scheduler').text(status.scheduler == 1 ? "SCHEDULER" : "MANUAL MODE");
         }
 
-        function failMsg() {
-            socket.close();
+        function failMsg(msg) {
+            isLocal = false;
             $("#msg").text('no connection!');
         }
 
-        function closeinstall() {
-            $(".popup").hide(0);
-        };
-        // function checkStatus() {
-        //     $.get('/getstatus', setStatus).fail(failMsg);
-        // }
+        function socketError(msg) {
+            isLocal = false;
+            $("#msg").text(msg);
+        }
 
-        socket.on('connect', console.log);
-        socket.on('disconnect', failMsg);
-        socket.on('close', failMsg);
-        socket.on('error', failMsg);
+        socket.on('connect', () => {
+            isLocal = true;
+            $("#msg").text('');
+        });
+        socket.on('disconnect', (err) => {
+            socketError(err);
+        });
+        socket.on('close', () => {
+            socketError(err);
+        });
+        socket.on('error', (err) => {
+            socketError(err);
+        });
+        socket.on('connect_error', (err) => {
+            socketError(err);
+        });
+        socket.on('connect_timeout', (err) => {
+            socketError(err);
+        });
+        socket.on('reconnect_error', (err) => {
+            socketError(err);
+        });
         socket.on('status', setStatus);
         socket.on('prestatus', setStatus);
-
-        //$(checkStatus);
+    </script>
+    <script>
+        let interval = setInterval(function() {
+            if (!isLocal) {
+                $.get("https://virgili.netsons.org/read_boiler_status.php", (res) => {
+                    setStatus(JSON.parse(res));
+                });
+            }
+        }, 2000);
     </script>
     <script type="text/javascript" src="assets/js/sw-init.js"></script>
 

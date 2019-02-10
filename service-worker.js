@@ -18,6 +18,7 @@ self.addEventListener('install', (e) => {
         return cache.addAll(urlsToCache);
     }).catch(console.error);
     e.waitUntil(putincache);
+    self.skipWaiting();
 });
 
 self.addEventListener('fetch', (e) => {
