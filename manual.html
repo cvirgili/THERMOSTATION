@@ -29,6 +29,11 @@
             color: green;
         }
         
+        button:disabled,
+        button[disabled] {
+            opacity: 0.5;
+        }
+        
         .bg-image {
             background-position: center;
             background-size: 50%;
@@ -52,7 +57,7 @@
     <script src="/assets/js/socket.io.slim.js"></script>
     <script>
         //NODE JS APP MUST BE SERVED ON HTTPS PROTOCOL
-        const socket = io('https://192.168.1.100:5000', {
+        const socket = io('192.168.1.100:5000', {
             rejectUnauthorized: false
         });
     </script>
@@ -61,16 +66,18 @@
 <body>
 
     <h1>iHome</h1>
-    <div><button id="relayStatus" onclick="relayOnOff()"><span class="bg-image off"></span></button></div>
-    <div><button id="scheduler" onclick="startScheduler()">SCHEDULER</button></div>
-    <div id="msg"></div>
+    <div id="container">
+        <div><button id="relayStatus" onclick="relayOnOff()"><span class="bg-image off"></span></button></div>
+        <div><button id="scheduler" onclick="startScheduler()">SCHEDULER</button></div>
+        <div id="msg"></div>
+    </div>
     <script>
         var isLocal = true,
             issettingdata = false;
         var relayStatus = 0;
         let Status = {
-            "relay": -1,
-            "remoterelay": -1,
+            "relay": 0,
+            "remoterelay": 0,
             "relayonline": 0,
             "scheduler": 0,
             "temp": 0,
@@ -91,16 +98,16 @@
             console.log("relayStatus", relayStatus);
 
             if (!isLocal) {
-                Status.remoterelay = 1;
+                Status.remoterelay = relayStatus;
                 Status.scheduler = 0;
                 setRemoteData();
-            } else
+            } else {
                 $.get("https://192.168.1.100:5000/setboiler/" + relayStatus).fail(failMsg);
+            }
         }
 
         function setRemoteData() {
             issettingdata = true;
-            console.info("STATUS===>", Status);
             $.post("https://virgili.netsons.org/save-thermostation-data.php",
                 JSON.stringify(Status), (res) => {
                     setStatus(JSON.parse(res));
@@ -109,8 +116,9 @@
         }
 
         function setStatus(status) {
-            Status = status;
-            console.log("Status", Status);
+            //Status = status;
+            $("#container button").prop("disabled", status.relayonline == 0);
+            //console.log("Status", Status);
             relayStatus = status.relay;
             $('#relayStatus>span').removeClass("on off").addClass("bg-image").addClass(status.relay == 1 ? "on" : "off");
             $('#scheduler').css({
@@ -121,10 +129,12 @@
 
         function failMsg(msg) {
             isLocal = false;
+            console.error("failMsg", msg);
             $("#msg").text('no connection!');
         }
 
         function socketError(msg) {
+            //console.error("socketError", msg);
             isLocal = false;
             $("#msg").text(msg);
         }
@@ -162,7 +172,7 @@
                     setStatus(JSON.parse(res));
                 });
             }
-        }, 2000);
+        }, 5000);
     </script>
     <script type="text/javascript" src="assets/js/sw-init.js"></script>
 

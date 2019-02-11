@@ -5,7 +5,7 @@ const request = require('request');
 const ReadRemoteData = require('./ReadRemoteData');
 const Scheduler = require('./Scheduler');
 const Stat = require('./Status');
-const Status = Stat.status;
+let Status = Stat.status;
 const settings = JSON.parse(fs.readFileSync(__basedir + '/data/Settings.json'));
 const relayvalues = [0, 1];
 module.exports = class BoilerController {
@@ -20,7 +20,6 @@ module.exports = class BoilerController {
     static init() {
         this.timeout = null;
         this.setRelay(0).then((v) => {
-            Status.relayonline = 1;
             this.startScheduler();
             this.checkRemote();
         }).catch((err) => {
@@ -28,6 +27,7 @@ module.exports = class BoilerController {
             this.settimeout(setTimeout(this.init, 5000));
         });
     }
+
 
     static startScheduler() {
         this.scheduler.start().then(() => {
@@ -70,17 +70,16 @@ module.exports = class BoilerController {
 
     static setRelay(val) {
         if (val == Status.relay) return new Promise((resolve, reject) => { resolve(val); });
-        else return this.sendCommand(settings.setremoteurl, -1).then(() => {
-            this.sendCommand(settings.esp01url + settings.gpiourl, val).then((v) => {
-                Status.relay = parseInt(val);
-                //synch remote data
-                this.sendStatusToRemote().catch(console.error);
-                global.io.emit('status', Status);
-            }).catch((err) => {
-                console.error("setRelay error", err);
-            });
+        else return this.sendCommand(settings.esp01url + settings.gpiourl, val).then((v) => {
+            Status.relay = parseInt(val);
+            Status.relayonline = 1;
+            //synch remote data
+            this.sendStatusToRemote().catch(console.error);
+            global.io.emit('status', Status);
         }).catch((err) => {
-            console.error("setRemote error", err);
+            console.error("setRelay error", err);
+            Status.relayonline = 0;
+            this.sendStatusToRemote();
         });
     }
 
@@ -98,10 +97,35 @@ module.exports = class BoilerController {
     static checkRemote() {
         ReadRemoteData.loop(settings.getremoteurl, 5000, (res) => {
             let status = JSON.parse(res);
-            if (parseInt(status.remoterelay) != -1 && parseInt(status.remoterelay) != Status.relay) {
-                this.setManual(parseInt(status.remoterelay));
+
+            let arEquals = this.compareJSON(Status, status);
+            console.log("arEquals", arEquals);
+            console.log("Status", Status);
+            console.log("status", status);
+
+            if (!arEquals) {
+                Object.keys(Status).forEach(k => {
+                    Status[k] = status[k];
+                });
+                if (Status.scheduler == 1) {
+                    this.startScheduler();
+
+                } else {
+                    this.setManual(parseInt(Status.remoterelay));
+                }
             }
+
+            // if (parseInt(status.remoterelay) != -1 && parseInt(status.remoterelay) != Status.relay) {
+            //     this.setManual(parseInt(status.remoterelay));
+            // }
         });
+    }
+
+    static compareJSON(json1, json2) {
+        Object.keys(json1).forEach((k) => {
+            if (json1[k] === json2[k]) return true;
+        });
+        return false;
     }
 
 };

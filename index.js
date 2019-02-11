@@ -1,5 +1,7 @@
 /*jshint esversion:6*/
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+process.env.NODE_TLS_ACCEPT_UNTRUSTED_CERTIFICATES_THIS_IS_INSECURE = "1";
+
 global.__basedir = __dirname;
 var express = require('express');
 var app = express();
