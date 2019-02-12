@@ -1,0 +1,26 @@
+<html>
+
+<head>
+    <script type="text/javascript" src="./assets/js/jquery-3.3.1.min.js"></script>
+
+</head>
+
+<body>
+    <h1>Status</h1>
+    <div id="data">
+
+    </div>
+    <script>
+        let interval = setInterval(function() {
+            $.get("https://virgili.netsons.org/read_boiler_status.php", (res) => {
+                let status = JSON.parse(res);
+                $('#data').empty();
+                Object.keys(status).forEach(k => {
+                    $('#data').append('<p>' + k + " : " + status[k] + "</p>");
+                });
+            });
+        }, 5000);
+    </script>
+</body>
+
+</html>

@@ -2,13 +2,14 @@
 
 const fs = require('fs');
 const request = require('request');
+const Stat = require('./Status');
 const ReadRemoteData = require('./ReadRemoteData');
 const Scheduler = require('./Scheduler');
-const Stat = require('./Status');
 let Status = Stat.status;
 const settings = JSON.parse(fs.readFileSync(__basedir + '/data/Settings.json'));
-const relayvalues = [0, 1];
+
 module.exports = class BoilerController {
+
     static settimeout(to) {
         this.timeout = to;
     }
@@ -23,11 +24,9 @@ module.exports = class BoilerController {
             this.startScheduler();
             this.checkRemote();
         }).catch((err) => {
-            Status.relayonline = 0;
             this.settimeout(setTimeout(this.init, 5000));
         });
     }
-
 
     static startScheduler() {
         this.scheduler.start().then(() => {
@@ -61,6 +60,7 @@ module.exports = class BoilerController {
         return new Promise((resolve, reject) => {
             let myresolve = (x) => { resolve(x); };
             let myreject = (x) => { reject(x); };
+            Status.timestamp = new Date().getTime();
             request.post(settings.savedataremoteurl, { form: JSON.stringify(Status) }, (err, res, body) => {
                 if (err) myreject(err);
                 else myresolve(Status);
@@ -69,8 +69,8 @@ module.exports = class BoilerController {
     }
 
     static setRelay(val) {
-        if (val == Status.relay) return new Promise((resolve, reject) => { resolve(val); });
-        else return this.sendCommand(settings.esp01url + settings.gpiourl, val).then((v) => {
+        //if (val == Status.relay) return new Promise((resolve, reject) => { resolve(val); });
+        return this.sendCommand(settings.esp01url + settings.gpiourl, val).then((v) => {
             Status.relay = parseInt(val);
             Status.relayonline = 1;
             //synch remote data
@@ -90,42 +90,34 @@ module.exports = class BoilerController {
         }).catch((err) => { console.error("setManualError", err); });
     }
 
-    static isManual() {
-        return Status.scheduler == 0;
-    }
+    // static isManual() {
+    //     return Status.scheduler == 0;
+    // }
 
     static checkRemote() {
         ReadRemoteData.loop(settings.getremoteurl, 5000, (res) => {
             let status = JSON.parse(res);
-
-            let arEquals = this.compareJSON(Status, status);
-            console.log("arEquals", arEquals);
-            console.log("Status", Status);
-            console.log("status", status);
-
-            if (!arEquals) {
+            let isChanged = status.timestamp > Status.timestamp;
+            if (isChanged == true) {
+                console.log("isChanged", isChanged);
                 Object.keys(Status).forEach(k => {
                     Status[k] = status[k];
                 });
                 if (Status.scheduler == 1) {
                     this.startScheduler();
-
                 } else {
-                    this.setManual(parseInt(Status.remoterelay));
+                    this.setManual(parseInt(Status.relay));
                 }
             }
-
-            // if (parseInt(status.remoterelay) != -1 && parseInt(status.remoterelay) != Status.relay) {
-            //     this.setManual(parseInt(status.remoterelay));
-            // }
         });
     }
 
     static compareJSON(json1, json2) {
+        let res = true;
         Object.keys(json1).forEach((k) => {
-            if (json1[k] === json2[k]) return true;
+            if (json1[k] != json2[k]) res = false;
         });
-        return false;
+        return res;
     }
 
 };

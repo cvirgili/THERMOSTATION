@@ -68,16 +68,15 @@
     <h1>iHome</h1>
     <div id="container">
         <div><button id="relayStatus" onclick="relayOnOff()"><span class="bg-image off"></span></button></div>
-        <div><button id="scheduler" onclick="startScheduler()">SCHEDULER</button></div>
+        <div><button id="scheduler" onclick="startScheduler()">S</button></div>
         <div id="msg"></div>
     </div>
     <script>
-        var isLocal = true,
-            issettingdata = false;
-        var relayStatus = 0;
+        let isLocal = true,
+            relayStatus = 0;
         let Status = {
+            "timestamp": new Date().getTime(),
             "relay": 0,
-            "remoterelay": 0,
             "relayonline": 0,
             "scheduler": 0,
             "temp": 0,
@@ -86,7 +85,7 @@
         };
 
         function startScheduler() {
-            if (!isLocal) {
+            if (isLocal == false) {
                 Status.scheduler = 1;
                 setRemoteData();
             } else
@@ -96,9 +95,9 @@
         function relayOnOff() {
             relayStatus = relayStatus == 0 ? 1 : 0;
             console.log("relayStatus", relayStatus);
-
-            if (!isLocal) {
-                Status.remoterelay = relayStatus;
+            if (isLocal == false) {
+                //Status.remoterelay = relayStatus;
+                Status.relay = relayStatus;
                 Status.scheduler = 0;
                 setRemoteData();
             } else {
@@ -107,16 +106,17 @@
         }
 
         function setRemoteData() {
-            issettingdata = true;
+            Status.timestamp = new Date().getTime();
             $.post("https://virgili.netsons.org/save-thermostation-data.php",
                 JSON.stringify(Status), (res) => {
                     setStatus(JSON.parse(res));
-                    issettingdata = false;
                 });
         }
 
         function setStatus(status) {
-            //Status = status;
+            Object.keys(status).forEach(k => {
+                Status[k] = status[k];
+            });
             $("#container button").prop("disabled", status.relayonline == 0);
             //console.log("Status", Status);
             relayStatus = status.relay;
@@ -124,7 +124,7 @@
             $('#scheduler').css({
                 "color": status.scheduler == 1 ? "green" : "red"
             });
-            $('#scheduler').text(status.scheduler == 1 ? "SCHEDULER" : "MANUAL MODE");
+            $('#scheduler').text(status.scheduler == 1 ? "S" : "M");
         }
 
         function failMsg(msg) {
@@ -163,16 +163,25 @@
         });
         socket.on('status', setStatus);
         socket.on('prestatus', setStatus);
+
+        function getRemoteStatus() {
+            $.get("https://virgili.netsons.org/read_boiler_status.php", (res) => {
+                let stat = JSON.parse(res);
+                setStatus(status);
+            });
+        }
     </script>
     <script>
         let interval = setInterval(function() {
-            if (issettingdata) return;
-            if (!isLocal) {
+            if (isLocal == false) {
                 $.get("https://virgili.netsons.org/read_boiler_status.php", (res) => {
-                    setStatus(JSON.parse(res));
+                    let stat = JSON.parse(res);
+                    if (stat.timestamp > Status.timestamp) setStatus(stat);
                 });
             }
         }, 5000);
+
+        getRemoteStatus();
     </script>
     <script type="text/javascript" src="assets/js/sw-init.js"></script>
 
