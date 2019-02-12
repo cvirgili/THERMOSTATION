@@ -20,28 +20,34 @@ module.exports = class BoilerController {
 
     static init() {
         this.timeout = null;
-        this.setRelay(0).then((v) => {
-            this.startScheduler();
-            this.checkRemote();
-        }).catch((err) => {
-            this.settimeout(setTimeout(this.init, 5000));
-        });
+        this.sendStatusToRemote().then((stat) => {
+            console.log("init status", stat);
+            this.setRelay(0).then((v) => {
+                this.startScheduler();
+                this.checkRemote();
+            }).catch((err) => {
+                this.settimeout(setTimeout(this.init, 5000));
+            });
+        }).catch(console.error);
     }
 
     static startScheduler() {
         this.scheduler.start().then(() => {
             Status.scheduler = 1;
-            this.sendStatusToRemote().catch((err) => { console.error("sendStatusToRemote error", err); });
-            global.io.emit('status', Status);
-            this.sendCommand(settings.esp01url + settings.manualurl, 0).catch(console.error);
+            this.sendStatusToRemote().then(() => {
+                global.io.emit('status', Status);
+                this.sendCommand(settings.esp01url + settings.manualurl, 0).catch(console.error);
+            }).catch((err) => { console.error("sendStatusToRemote error", err); });
         }).catch((err) => { console.error("scheduler start error", err); });
     }
 
     static stopScheduler() {
         this.scheduler.stop().then(() => {
             Status.scheduler = 0;
-            this.sendStatusToRemote().catch((err) => { console.error("sendStatusToRemote error", err); });
-            global.io.emit('status', Status);
+            this.sendStatusToRemote().then(() => {
+                global.io.emit('status', Status);
+
+            }).catch((err) => { console.error("sendStatusToRemote error", err); });
         }).catch((err) => { console.error("scheduler stop error", err); });
     }
 
@@ -74,8 +80,10 @@ module.exports = class BoilerController {
             Status.relay = parseInt(val);
             Status.relayonline = 1;
             //synch remote data
-            this.sendStatusToRemote().catch(console.error);
-            global.io.emit('status', Status);
+            this.sendStatusToRemote().then(() => {
+                global.io.emit('status', Status);
+
+            }).catch(console.error);
         }).catch((err) => {
             console.error("setRelay error", err);
             Status.relayonline = 0;

@@ -27,6 +27,7 @@
             border-radius: 50%;
             padding: 0;
             color: green;
+            display: none;
         }
         
         button:disabled,
@@ -57,9 +58,8 @@
     <script src="/assets/js/socket.io.slim.js"></script>
     <script>
         //NODE JS APP MUST BE SERVED ON HTTPS PROTOCOL
-        const socket = io('192.168.1.100:5000', {
-            rejectUnauthorized: false
-        });
+        const socket = io('https://192.168.1.100:5000');
+        socket.tim
     </script>
 </head>
 
@@ -113,21 +113,22 @@
                 });
         }
 
-        function setStatus(status) {
-            Object.keys(status).forEach(k => {
-                Status[k] = status[k];
+        function setStatus(stat) {
+            Object.keys(stat).forEach(k => {
+                Status[k] = stat[k];
             });
-            $("#container button").prop("disabled", status.relayonline == 0);
+            $("#container button").prop("disabled", Status.relayonline == 0);
             //console.log("Status", Status);
-            relayStatus = status.relay;
-            $('#relayStatus>span').removeClass("on off").addClass("bg-image").addClass(status.relay == 1 ? "on" : "off");
+            relayStatus = Status.relay;
+            $('#relayStatus>span').removeClass("on off").addClass("bg-image").addClass(Status.relay == 1 ? "on" : "off");
             $('#scheduler').css({
-                "color": status.scheduler == 1 ? "green" : "red"
+                "color": Status.scheduler == 1 ? "green" : "red"
             });
-            $('#scheduler').text(status.scheduler == 1 ? "S" : "M");
+            $('#scheduler').text(Status.scheduler == 1 ? "S" : "M");
         }
 
         function failMsg(msg) {
+            $('button').show();
             isLocal = false;
             console.error("failMsg", msg);
             $("#msg").text('no connection!');
@@ -135,12 +136,14 @@
 
         function socketError(msg) {
             //console.error("socketError", msg);
+            $('button').show();
             isLocal = false;
             $("#msg").text(msg);
         }
 
         socket.on('connect', () => {
             isLocal = true;
+            $('button').show();
             $("#msg").text('');
         });
         socket.on('disconnect', (err) => {
@@ -164,24 +167,29 @@
         socket.on('status', setStatus);
         socket.on('prestatus', setStatus);
 
-        function getRemoteStatus() {
+        function getRemoteStatus(cb) {
             $.get("https://virgili.netsons.org/read_boiler_status.php", (res) => {
                 let stat = JSON.parse(res);
-                setStatus(status);
+                setStatus(stat);
+                cb();
             });
         }
     </script>
     <script>
-        let interval = setInterval(function() {
-            if (isLocal == false) {
-                $.get("https://virgili.netsons.org/read_boiler_status.php", (res) => {
-                    let stat = JSON.parse(res);
-                    if (stat.timestamp > Status.timestamp) setStatus(stat);
-                });
-            }
-        }, 5000);
+        let interval
 
-        getRemoteStatus();
+        function loop() {
+            interval = setInterval(function() {
+                if (isLocal == false) {
+                    $.get("https://virgili.netsons.org/read_boiler_status.php", (res) => {
+                        let stat = JSON.parse(res);
+                        if (stat.timestamp > Status.timestamp) setStatus(stat);
+                    });
+                }
+            }, 5000);
+        }
+
+        getRemoteStatus(loop);
     </script>
     <script type="text/javascript" src="assets/js/sw-init.js"></script>
 

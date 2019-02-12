@@ -9,8 +9,7 @@ const urlsToCache = [
     '/assets/js/jquery-3.3.1.min.js',
     '/assets/js/sw-init.js',
     '/assets/js/socket.io.slim.js',
-    '/assets/manifest-manual.json',
-    '/service-worker.js'
+    '/assets/manifest-manual.json'
 ];
 
 self.addEventListener('install', (e) => {
@@ -20,7 +19,7 @@ self.addEventListener('install', (e) => {
     e.waitUntil(putincache);
     self.skipWaiting();
 });
-
+/*
 self.addEventListener('fetch', (e) => {
     console.log(e.request.url);
     if (!e.request.url.match(location.origin)) return;
@@ -30,11 +29,25 @@ self.addEventListener('fetch', (e) => {
                 console.info(`Serving ${res.url} from cache.`);
                 return res;
             }
-            return fetch(e.request).then((fetchres) => {
-                cache.put(e.request, fetchres.clone());
-                return fetchres;
-            });
+            return e.request.url;
+            //return fetch(e.request).then((fetchres) => {
+            //cache.put(e.request, fetchres.clone());
+            //return fetchres;
+            //});
         });
     }).catch((err) => { console.log('err', err); });
     e.respondWith(newRes);
+});*/
+self.addEventListener('fetch', function(event) {
+    if (!event.request.url.match(location.origin)) return;
+    event.respondWith(
+        caches.open(CACHE_NAME).then(function(cache) {
+            return cache.match(event.request).then(function(response) {
+                return response || fetch(event.request).then(function(response) {
+                    //cache.put(event.request, response.clone());
+                    return response;
+                });
+            });
+        })
+    );
 });
