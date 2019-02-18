@@ -19,7 +19,7 @@
         }
         
         button {
-            font-size: 6vw;
+            font-size: 25vh;
             width: 30vh;
             height: 30vh;
             background: black;
@@ -28,11 +28,19 @@
             padding: 0;
             color: green;
             display: none;
+            margin: auto;
         }
         
         button:disabled,
         button[disabled] {
             opacity: 0.5;
+        }
+        
+        #container {
+            width: 100vw;
+            text-align: center;
+            padding: 0;
+            margin: 0;
         }
         
         .bg-image {
@@ -58,7 +66,7 @@
     <script src="/assets/js/socket.io.slim.js"></script>
     <script>
         //NODE JS APP MUST BE SERVED ON HTTPS PROTOCOL
-        const socket = io('https://192.168.1.100:5000');
+        const socket = io('http://192.168.1.100:5000');
         socket.tim
     </script>
 </head>
@@ -74,8 +82,8 @@
     <script>
         let isLocal = true,
             relayStatus = 0;
+        //"timestamp": new Date().getTime(),
         let Status = {
-            "timestamp": new Date().getTime(),
             "relay": 0,
             "relayonline": 0,
             "scheduler": 0,
@@ -89,7 +97,7 @@
                 Status.scheduler = 1;
                 setRemoteData();
             } else
-                $.get("https://192.168.1.100:5000/startscheduler", console.log).fail(failMsg);
+                $.get("http://192.168.1.100:5000/startscheduler", console.log).fail(failMsg);
         }
 
         function relayOnOff() {
@@ -101,20 +109,20 @@
                 Status.scheduler = 0;
                 setRemoteData();
             } else {
-                $.get("https://192.168.1.100:5000/setboiler/" + relayStatus).fail(failMsg);
+                $.get("http://192.168.1.100:5000/setboiler/" + relayStatus).fail(failMsg);
             }
         }
 
         function setRemoteData() {
-            Status.timestamp = new Date().getTime();
-            $.post("https://virgili.netsons.org/save-thermostation-data.php",
+            //Status.timestamp = new Date().getTime();
+            $.post("http://virgili.netsons.org/save-thermostation-data.php",
                 JSON.stringify(Status), (res) => {
                     setStatus(JSON.parse(res));
                 });
         }
 
         function setStatus(stat) {
-            Object.keys(stat).forEach(k => {
+            Object.keys(stat).forEach((k) => {
                 Status[k] = stat[k];
             });
             $("#container button").prop("disabled", Status.relayonline == 0);
@@ -168,9 +176,8 @@
         socket.on('prestatus', setStatus);
 
         function getRemoteStatus(cb) {
-            $.get("https://virgili.netsons.org/read_boiler_status.php", (res) => {
-                let stat = JSON.parse(res);
-                setStatus(stat);
+            $.get("http://virgili.netsons.org/read_boiler_status.php", (res) => {
+                setStatus(JSON.parse(res));
                 cb();
             });
         }
@@ -178,18 +185,31 @@
     <script>
         let interval
 
+        function compareJSON(json1, json2) {
+            let keys = Object.keys(json1);
+            for (let i = 0; i < keys.length; i++) {
+                if (json1[keys[i]] != json2[keys[i]]) return true;
+            };
+            return false;
+        }
+
         function loop() {
             interval = setInterval(function() {
                 if (isLocal == false) {
-                    $.get("https://virgili.netsons.org/read_boiler_status.php", (res) => {
+                    $.get("http://virgili.netsons.org/read_boiler_status.php", function(res) {
                         let stat = JSON.parse(res);
-                        if (stat.timestamp > Status.timestamp) setStatus(stat);
+                        if (compareJSON(Status, stat) === true) setStatus(stat);
                     });
                 }
-            }, 5000);
+            }, 2000);
         }
-
-        getRemoteStatus(loop);
+        $(function() {
+            $.ajaxSetup({
+                // Disable caching of AJAX responses
+                cache: false
+            });
+            getRemoteStatus(loop);
+        });
     </script>
     <script type="text/javascript" src="assets/js/sw-init.js"></script>
 

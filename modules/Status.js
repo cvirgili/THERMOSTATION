@@ -1,6 +1,8 @@
 /*jshint esversion:6*/
+//    "timestamp": 1549994965324,
+
+
 exports.status = {
-    "timestamp": 1549994965324,
     "relay": -1,
     "relayonline": 0,
     "scheduler": 0,

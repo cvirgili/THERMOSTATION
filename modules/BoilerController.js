@@ -66,7 +66,7 @@ module.exports = class BoilerController {
         return new Promise((resolve, reject) => {
             let myresolve = (x) => { resolve(x); };
             let myreject = (x) => { reject(x); };
-            Status.timestamp = new Date().getTime();
+            //Status.timestamp = new Date().getTime();
             request.post(settings.savedataremoteurl, { form: JSON.stringify(Status) }, (err, res, body) => {
                 if (err) myreject(err);
                 else myresolve(Status);
@@ -103,9 +103,10 @@ module.exports = class BoilerController {
     // }
 
     static checkRemote() {
-        ReadRemoteData.loop(settings.getremoteurl, 5000, (res) => {
+        ReadRemoteData.loop(settings.getremoteurl, 2000, (res) => {
             let status = JSON.parse(res);
-            let isChanged = status.timestamp > Status.timestamp;
+            //let isChanged = status.timestamp > Status.timestamp;
+            let isChanged = this.compareJSON(status, Status);
             if (isChanged == true) {
                 console.log("isChanged", isChanged);
                 Object.keys(Status).forEach(k => {
@@ -121,11 +122,11 @@ module.exports = class BoilerController {
     }
 
     static compareJSON(json1, json2) {
-        let res = true;
-        Object.keys(json1).forEach((k) => {
-            if (json1[k] != json2[k]) res = false;
-        });
-        return res;
+        let keys = Object.keys(json1);
+        for (let i = 0; i < keys.length; i++) {
+            if (json1[keys[i]] != json2[keys[i]]) return true;
+        };
+        return false;
     }
 
 };
