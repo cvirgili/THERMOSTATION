@@ -11,15 +11,15 @@ const settings = JSON.parse(fs.readFileSync(__basedir + '/data/settings.json'));
 module.exports = class BoilerController {
 
     static settimeout(to) {
-        this.timeout = to;
+        BoilerController.timeout = to;
     }
 
     static clearTimeout() {
-        clearTimeout(this.timeout);
+        clearTimeout(BoilerController.timeout);
     }
 
     static init() {
-        this.timeout = null;
+        BoilerController.timeout = null;
         this.sendStatusToRemote().then((stat) => {
             console.log("init status", stat);
             this.setRelay(0).then((v) => {
@@ -46,7 +46,6 @@ module.exports = class BoilerController {
             Status.scheduler = 0;
             this.sendStatusToRemote().then(() => {
                 //global.io.emit('status', Status);
-
             }).catch((err) => { console.error("sendStatusToRemote error", err); });
         }).catch((err) => { console.error("scheduler stop error", err); });
     }
@@ -66,7 +65,6 @@ module.exports = class BoilerController {
         return new Promise((resolve, reject) => {
             let myresolve = (x) => { resolve(x); };
             let myreject = (x) => { reject(x); };
-            //Status.timestamp = new Date().getTime();
             request.post(settings.savedataremoteurl, { form: JSON.stringify(Status) }, (err, res, body) => {
                 if (err) myreject(err);
                 else myresolve(Status);
@@ -75,14 +73,12 @@ module.exports = class BoilerController {
     }
 
     static setRelay(val) {
-        //if (val == Status.relay) return new Promise((resolve, reject) => { resolve(val); });
         return this.sendCommand(settings.esp01url + settings.gpiourl, val).then((v) => {
             Status.relay = parseInt(val);
             Status.relayonline = 1;
             //synch remote data
             this.sendStatusToRemote().then(() => {
                 //global.io.emit('status', Status);
-
             }).catch(console.error);
         }).catch((err) => {
             console.error("setRelay error", err);
@@ -98,22 +94,14 @@ module.exports = class BoilerController {
         }).catch((err) => { console.error("setManualError", err); });
     }
 
-    // static isManual() {
-    //     return Status.scheduler == 0;
-    // }
-
     static checkRemote() {
         ReadRemoteData.loop(settings.getremoteurl, 2000, (res) => {
             if (!res) return;
             let status = JSON.parse(res);
-            //let isChanged = status.timestamp > Status.timestamp;
             let isChanged = this.compareJSON(status, Status);
             if (isChanged == true) {
                 console.log("isChanged", isChanged);
                 Status = JSON.parse(JSON.stringify(status));
-                // Object.keys(Status).forEach(k => {
-                //     Status[k] = status[k];
-                // });
                 if (Status.scheduler == 1) {
                     this.startScheduler();
                 } else {

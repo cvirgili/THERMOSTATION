@@ -63,11 +63,6 @@
         }
     </style>
     <script type="text/javascript" src="./assets/js/jquery-3.3.1.min.js"></script>
-    <script src="/assets/js/socket.io.slim.js"></script>
-    <script>
-        //NODE JS APP MUST BE SERVED ON HTTPS PROTOCOL
-        //const socket = io('http://192.168.1.100:5000');
-    </script>
 </head>
 
 <body>
@@ -79,9 +74,7 @@
         <div id="msg"></div>
     </div>
     <script>
-        //let isLocal = true,
         let relayStatus = 0;
-        //"timestamp": new Date().getTime(),
         let Status = {
             "relay": 0,
             "relayonline": 1,
@@ -92,40 +85,31 @@
         };
 
         function startScheduler() {
-            // if (isLocal == false) {
+            if (Status.scheduler === 1) return;
             Status.scheduler = 1;
             setRemoteData();
-            // } else
-            //     $.get("http://192.168.1.100:5000/startscheduler", console.log).fail(failMsg);
         }
 
         function relayOnOff() {
+            clearInterval(interval);
             relayStatus = relayStatus == 0 ? 1 : 0;
             console.log("relayStatus", relayStatus);
-            // if (isLocal == false) {
-            //Status.remoterelay = relayStatus;
             Status.relay = relayStatus;
             Status.scheduler = 0;
             setRemoteData();
-            // } else {
-            //     $.get("http://192.168.1.100:5000/setboiler/" + relayStatus).fail(failMsg);
-            // }
         }
 
         function setRemoteData() {
-            //Status.timestamp = new Date().getTime();
-            $.post("http://virgili.netsons.org/save-thermostation-data.php",
+            $.post("https://virgili.netsons.org/save-thermostation-data.php",
                 JSON.stringify(Status), (res) => {
                     setStatus(JSON.parse(res));
-                });
+                    loop();
+                }).fail(failMsg);
         }
 
         function setStatus(stat) {
-            Object.keys(stat).forEach((k) => {
-                Status[k] = stat[k];
-            });
+            Status = JSON.parse(JSON.stringify(stat));
             $("#container button").prop("disabled", Status.relayonline == 0);
-            //console.log("Status", Status);
             relayStatus = Status.relay;
             $('#relayStatus>span').removeClass("on off").addClass("bg-image").addClass(Status.relay == 1 ? "on" : "off");
             $('#scheduler').css({
@@ -140,42 +124,9 @@
             console.error("failMsg", msg);
             $("#msg").text('no connection!');
         }
-        /*
-                function socketError(msg) {
-                    //console.error("socketError", msg);
-                    $('button').show();
-                    isLocal = false;
-                    $("#msg").text(msg);
-                }
 
-                socket.on('connect', () => {
-                    isLocal = true;
-                    $('button').show();
-                    $("#msg").text('');
-                });
-                socket.on('disconnect', (err) => {
-                    socketError(err);
-                });
-                socket.on('close', () => {
-                    socketError(err);
-                });
-                socket.on('error', (err) => {
-                    socketError(err);
-                });
-                socket.on('connect_error', (err) => {
-                    socketError(err);
-                });
-                socket.on('connect_timeout', (err) => {
-                    socketError(err);
-                });
-                socket.on('reconnect_error', (err) => {
-                    socketError(err);
-                });
-                socket.on('status', setStatus);
-                socket.on('prestatus', setStatus);
-        */
         function getRemoteStatus(cb) {
-            $.get("http://virgili.netsons.org/read_boiler_status.php", (res) => {
+            $.get("https://virgili.netsons.org/read_boiler_status.php", (res) => {
                 setStatus(JSON.parse(res));
                 cb();
             });
@@ -190,15 +141,14 @@
 
         function loop() {
             interval = setInterval(function() {
-                $.get("http://virgili.netsons.org/read_boiler_status.php", function(res) {
+                $.get("https://virgili.netsons.org/read_boiler_status.php", function(res) {
                     let stat = JSON.parse(res);
-                    if (compareJSON(Status, stat) === true) setStatus(stat);
+                    setStatus(stat);
                 });
             }, 2000);
         }
         $(function() {
             $.ajaxSetup({
-                // Disable caching of AJAX responses
                 cache: false
             });
             getRemoteStatus(loop);
