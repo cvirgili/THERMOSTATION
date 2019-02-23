@@ -1,13 +1,14 @@
 /*jshint esversion:6*/
 const fs = require('fs');
 const BoilerController = require('./BoilerController');
+global.schedulerTimeout = null;
 
 module.exports = class Scheduler {
 
     constructor() {
         //this.schedData = {};
         this.isStart = false;
-        this.timeout = null;
+        //this.timeout = null;
     }
 
     resetTimerArray() {
@@ -38,7 +39,7 @@ module.exports = class Scheduler {
 
     start() {
         return new Promise((resolve, reject) => {
-            if (this.isStart == true) resolve(true);
+            if (this.isStart == true) reject("scheduler is already started");
             //this.schedData = JSON.parse(fs.readFileSync(__basedir + '/data/scheduler.json'));
             Scheduler.schedData = JSON.parse(fs.readFileSync(__basedir + '/data/scheduler.json'));
             this.isStart = true;
@@ -49,11 +50,14 @@ module.exports = class Scheduler {
     }
 
     loop(timerObject) {
-        if (this.isStart == false) return;
+        if (this.isStart == false) {
+            clearTimeout(schedulerTimeout);
+            return;
+        }
         let now = new Date();
         if (timerObject.today != now.getDay()) {
             this.stop().then(() => {
-                clearTimeout(this.timeout);
+                clearTimeout(schedulerTimeout);
                 this.start();
                 return;
             });
@@ -61,13 +65,13 @@ module.exports = class Scheduler {
         //global.boilerControl.setBoiler(timerObject[now.getHours() + "-" + now.getMinutes()].val).then(console.log).catch(console.error);
         BoilerController.setRelay(timerObject[now.getHours() + "-" + now.getMinutes()].val).catch(console.error);
         let reloop = () => { this.loop(timerObject); };
-        this.timeout = setTimeout(reloop, 5000);
+        schedulerTimeout = setTimeout(reloop, 5000);
     }
 
     stop() {
         return new Promise((resolve, reject) => {
             console.log("scheduler stop");
-            clearTimeout(this.timeout);
+            clearTimeout(schedulerTimeout);
             this.isStart = false;
             resolve(true);
         });

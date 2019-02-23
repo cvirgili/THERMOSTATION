@@ -122,11 +122,14 @@ module.exports = class BoilerController {
     }
 
     static compareJSON(json1, json2) {
-        let keys = Object.keys(json1);
-        for (let i = 0; i < keys.length; i++) {
-            if (json1[keys[i]] != json2[keys[i]]) return true;
-        };
-        return false;
+
+        return JSON.stringify(json1) != JSON.stringify(json2);
+
+        // let keys = Object.keys(json1);
+        // for (let i = 0; i < keys.length; i++) {
+        //     if (json1[keys[i]] != json2[keys[i]]) return true;
+        // };
+        // return false;
     }
 
 };
