@@ -63,7 +63,7 @@ module.exports = class BoilerControl {
             this.sendCommand(this.gpiourl, val, (err, res, body) => {
                 if (!err) {
                     Status.relay = parseInt(body);
-                    global.io.emit('status', Status);
+                    //global.io.emit('status', Status);
                     console.log(Status);
                     resolve(Status);
                 } else {
@@ -94,7 +94,7 @@ module.exports = class BoilerControl {
         if (Status.scheduler == 1) return;
         return this.scheduler.start().then(() => {
             Status.scheduler = 1;
-            global.io.emit('status', Status);
+            //global.io.emit('status', Status);
             console.log("scheduler started");
             //setta la variabile remota a -1
             this.setRemoteStatus("-1").then(() => {

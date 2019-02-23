@@ -27,7 +27,7 @@
             border-radius: 50%;
             padding: 0;
             color: green;
-            display: none;
+            /* display: none; */
             margin: auto;
         }
         
@@ -66,8 +66,7 @@
     <script src="/assets/js/socket.io.slim.js"></script>
     <script>
         //NODE JS APP MUST BE SERVED ON HTTPS PROTOCOL
-        const socket = io('http://192.168.1.100:5000');
-        socket.tim
+        //const socket = io('http://192.168.1.100:5000');
     </script>
 </head>
 
@@ -80,37 +79,37 @@
         <div id="msg"></div>
     </div>
     <script>
-        let isLocal = true,
-            relayStatus = 0;
+        //let isLocal = true,
+        let relayStatus = 0;
         //"timestamp": new Date().getTime(),
         let Status = {
             "relay": 0,
-            "relayonline": 0,
-            "scheduler": 0,
+            "relayonline": 1,
+            "scheduler": 1,
             "temp": 0,
             "actualTreshold": 0,
             "humi": 0
         };
 
         function startScheduler() {
-            if (isLocal == false) {
-                Status.scheduler = 1;
-                setRemoteData();
-            } else
-                $.get("http://192.168.1.100:5000/startscheduler", console.log).fail(failMsg);
+            // if (isLocal == false) {
+            Status.scheduler = 1;
+            setRemoteData();
+            // } else
+            //     $.get("http://192.168.1.100:5000/startscheduler", console.log).fail(failMsg);
         }
 
         function relayOnOff() {
             relayStatus = relayStatus == 0 ? 1 : 0;
             console.log("relayStatus", relayStatus);
-            if (isLocal == false) {
-                //Status.remoterelay = relayStatus;
-                Status.relay = relayStatus;
-                Status.scheduler = 0;
-                setRemoteData();
-            } else {
-                $.get("http://192.168.1.100:5000/setboiler/" + relayStatus).fail(failMsg);
-            }
+            // if (isLocal == false) {
+            //Status.remoterelay = relayStatus;
+            Status.relay = relayStatus;
+            Status.scheduler = 0;
+            setRemoteData();
+            // } else {
+            //     $.get("http://192.168.1.100:5000/setboiler/" + relayStatus).fail(failMsg);
+            // }
         }
 
         function setRemoteData() {
@@ -141,40 +140,40 @@
             console.error("failMsg", msg);
             $("#msg").text('no connection!');
         }
+        /*
+                function socketError(msg) {
+                    //console.error("socketError", msg);
+                    $('button').show();
+                    isLocal = false;
+                    $("#msg").text(msg);
+                }
 
-        function socketError(msg) {
-            //console.error("socketError", msg);
-            $('button').show();
-            isLocal = false;
-            $("#msg").text(msg);
-        }
-
-        socket.on('connect', () => {
-            isLocal = true;
-            $('button').show();
-            $("#msg").text('');
-        });
-        socket.on('disconnect', (err) => {
-            socketError(err);
-        });
-        socket.on('close', () => {
-            socketError(err);
-        });
-        socket.on('error', (err) => {
-            socketError(err);
-        });
-        socket.on('connect_error', (err) => {
-            socketError(err);
-        });
-        socket.on('connect_timeout', (err) => {
-            socketError(err);
-        });
-        socket.on('reconnect_error', (err) => {
-            socketError(err);
-        });
-        socket.on('status', setStatus);
-        socket.on('prestatus', setStatus);
-
+                socket.on('connect', () => {
+                    isLocal = true;
+                    $('button').show();
+                    $("#msg").text('');
+                });
+                socket.on('disconnect', (err) => {
+                    socketError(err);
+                });
+                socket.on('close', () => {
+                    socketError(err);
+                });
+                socket.on('error', (err) => {
+                    socketError(err);
+                });
+                socket.on('connect_error', (err) => {
+                    socketError(err);
+                });
+                socket.on('connect_timeout', (err) => {
+                    socketError(err);
+                });
+                socket.on('reconnect_error', (err) => {
+                    socketError(err);
+                });
+                socket.on('status', setStatus);
+                socket.on('prestatus', setStatus);
+        */
         function getRemoteStatus(cb) {
             $.get("http://virgili.netsons.org/read_boiler_status.php", (res) => {
                 setStatus(JSON.parse(res));
@@ -186,21 +185,15 @@
         let interval
 
         function compareJSON(json1, json2) {
-            let keys = Object.keys(json1);
-            for (let i = 0; i < keys.length; i++) {
-                if (json1[keys[i]] != json2[keys[i]]) return true;
-            };
-            return false;
+            return JSON.stringify(json1) != JSON.stringify(json2);
         }
 
         function loop() {
             interval = setInterval(function() {
-                if (isLocal == false) {
-                    $.get("http://virgili.netsons.org/read_boiler_status.php", function(res) {
-                        let stat = JSON.parse(res);
-                        if (compareJSON(Status, stat) === true) setStatus(stat);
-                    });
-                }
+                $.get("http://virgili.netsons.org/read_boiler_status.php", function(res) {
+                    let stat = JSON.parse(res);
+                    if (compareJSON(Status, stat) === true) setStatus(stat);
+                });
             }, 2000);
         }
         $(function() {

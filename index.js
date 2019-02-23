@@ -20,7 +20,7 @@ const options = {
 //https.globalAgent.options.rejectUnauthorized = false;
 //const server = https.createServer(options, app);
 const server = http.createServer(app);
-global.io = require('socket.io')(server);
+//global.io = require('socket.io')(server);
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/assets', express.static(__dirname + '/assets'));
@@ -71,9 +71,10 @@ server.listen(PORT, function() {
     BoilerController.scheduler = new Scheduler();
     BoilerController.init();
 });
-
+/*
 io.on('connection', function(socket) {
     io.emit('status', Status);
     socket.on('close', console.log);
     socket.on('error', console.log);
 });
+*/

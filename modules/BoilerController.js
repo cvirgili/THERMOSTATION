@@ -35,7 +35,7 @@ module.exports = class BoilerController {
         this.scheduler.start().then(() => {
             Status.scheduler = 1;
             this.sendStatusToRemote().then(() => {
-                global.io.emit('status', Status);
+                //global.io.emit('status', Status);
                 this.sendCommand(settings.esp01url + settings.manualurl, 0).catch(console.error);
             }).catch((err) => { console.error("sendStatusToRemote error", err); });
         }).catch((err) => { console.error("scheduler start error", err); });
@@ -45,7 +45,7 @@ module.exports = class BoilerController {
         this.scheduler.stop().then(() => {
             Status.scheduler = 0;
             this.sendStatusToRemote().then(() => {
-                global.io.emit('status', Status);
+                //global.io.emit('status', Status);
 
             }).catch((err) => { console.error("sendStatusToRemote error", err); });
         }).catch((err) => { console.error("scheduler stop error", err); });
@@ -81,7 +81,7 @@ module.exports = class BoilerController {
             Status.relayonline = 1;
             //synch remote data
             this.sendStatusToRemote().then(() => {
-                global.io.emit('status', Status);
+                //global.io.emit('status', Status);
 
             }).catch(console.error);
         }).catch((err) => {
@@ -104,14 +104,16 @@ module.exports = class BoilerController {
 
     static checkRemote() {
         ReadRemoteData.loop(settings.getremoteurl, 2000, (res) => {
+            if (!res) return;
             let status = JSON.parse(res);
             //let isChanged = status.timestamp > Status.timestamp;
             let isChanged = this.compareJSON(status, Status);
             if (isChanged == true) {
                 console.log("isChanged", isChanged);
-                Object.keys(Status).forEach(k => {
-                    Status[k] = status[k];
-                });
+                Status = JSON.parse(JSON.stringify(status));
+                // Object.keys(Status).forEach(k => {
+                //     Status[k] = status[k];
+                // });
                 if (Status.scheduler == 1) {
                     this.startScheduler();
                 } else {
@@ -122,14 +124,7 @@ module.exports = class BoilerController {
     }
 
     static compareJSON(json1, json2) {
-
         return JSON.stringify(json1) != JSON.stringify(json2);
-
-        // let keys = Object.keys(json1);
-        // for (let i = 0; i < keys.length; i++) {
-        //     if (json1[keys[i]] != json2[keys[i]]) return true;
-        // };
-        // return false;
     }
 
 };

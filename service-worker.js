@@ -1,4 +1,5 @@
 /*jshint esversion:6 */
+//'/assets/js/socket.io.slim.js',
 
 const CACHE_NAME = 'static-cache';
 const urlsToCache = [
@@ -8,7 +9,6 @@ const urlsToCache = [
     '/assets/fonts/TECHNOID.TTF',
     '/assets/js/jquery-3.3.1.min.js',
     '/assets/js/sw-init.js',
-    '/assets/js/socket.io.slim.js',
     '/assets/manifest-manual.json'
 ];
 
