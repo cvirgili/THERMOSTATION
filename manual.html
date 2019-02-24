@@ -117,7 +117,7 @@
             if (issending == true) return;
             $.getJSON("https://virgili.netsons.org/Status.json", (res) => {
                 setStatus(res);
-                failMsg(JSON.stringify(res));
+                failMsg(JSON.stringify(res, null, 1));
                 if (cb) cb();
             }).fail(failMsg);
         }

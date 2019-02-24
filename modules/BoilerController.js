@@ -89,7 +89,7 @@ module.exports = class BoilerController {
         this.stopScheduler();
         if (parseInt(val) === parseInt(this.Status.relay)) return;
         this.sendCommand(settings.esp01url + settings.manualurl, 1).then((v) => {
-            this.setRelay(parseInt(v));
+            this.setRelay(parseInt(val));
         }).catch((err) => { console.error("setManualError", err); });
     }
 
