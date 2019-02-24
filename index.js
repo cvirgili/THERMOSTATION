@@ -17,6 +17,8 @@ const options = {
     key: fs.readFileSync('key.pem'),
     cert: fs.readFileSync('cert.pem')
 };
+
+const reboot = require('./modules/reboot');
 //https.globalAgent.options.rejectUnauthorized = false;
 //const server = https.createServer(options, app);
 const server = http.createServer(app);
@@ -58,6 +60,10 @@ app.get('/startscheduler', (req, res) => {
     BoilerController.startScheduler();
     console.log("starting scheduler...");
     res.send("ok");
+});
+
+app.get('/reboot', (req, res) => {
+    reboot.reboot(console.log);
 });
 
 // http.listen(PORT, () => {
