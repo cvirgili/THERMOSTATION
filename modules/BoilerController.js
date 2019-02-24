@@ -45,9 +45,11 @@ module.exports = class BoilerController {
             let myresolve = (x) => { resolve(x); };
             let myreject = (x) => { reject(x); };
             request.get(url + val, (err, res, body) => {
-                if (!err) console.log("response from", url + val, body);
                 if (err) myreject(err);
-                else myresolve(body);
+                else {
+                    console.log("response from", url + val, body);
+                    myresolve(body);
+                }
             });
         });
     }
@@ -70,6 +72,7 @@ module.exports = class BoilerController {
     }
 
     static setRelay(val) {
+        if (parseInt(val) === parseInt(Status.relay)) return new Promise((resolve, reject) => { resolve(val); });
         return this.sendCommand(settings.esp01url + settings.gpiourl, val).then((v) => {
             Status.relay = parseInt(v);
             Status.relayonline = 1;
@@ -83,8 +86,9 @@ module.exports = class BoilerController {
 
     static setManual(val) {
         this.stopScheduler();
+        if (parseInt(val) === parseInt(Status.relay)) return;
         this.sendCommand(settings.esp01url + settings.manualurl, 1).then((v) => {
-            this.setRelay(v);
+            this.setRelay(parseInt(v));
         }).catch((err) => { console.error("setManualError", err); });
     }
 
