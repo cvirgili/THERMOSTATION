@@ -5,12 +5,13 @@ const request = require('request');
 const Stat = require('./Status');
 const ReadRemoteData = require('./ReadRemoteData');
 const Scheduler = require('./Scheduler');
-let Status = Stat.status;
+//let Status = Stat.status;
 const settings = JSON.parse(fs.readFileSync(__basedir + '/data/settings.json'));
 
 module.exports = class BoilerController {
 
     static init() {
+        this.Status = Stat.status;
         BoilerController.issending = false;
         clearTimeout(BoilerController.timeout);
         this.checkRelayStatus();
@@ -26,7 +27,7 @@ module.exports = class BoilerController {
 
     static startScheduler() {
         this.scheduler.start().then(() => {
-            Status.scheduler = 1;
+            this.Status.scheduler = 1;
             this.sendStatusToRemote().then(() => {
                 this.sendCommand(settings.esp01url + settings.manualurl, 0).catch(console.error);
             }).catch((err) => { console.error("sendStatusToRemote error", err); });
@@ -35,7 +36,7 @@ module.exports = class BoilerController {
 
     static stopScheduler() {
         this.scheduler.stop().then(() => {
-            Status.scheduler = 0;
+            this.Status.scheduler = 0;
             this.sendStatusToRemote().catch((err) => { console.error("sendStatusToRemote error", err); });
         }).catch((err) => { console.error("scheduler stop error", err); });
     }
@@ -58,35 +59,35 @@ module.exports = class BoilerController {
         //Status.timestamp = new Date().getTime();
         return new Promise((resolve, reject) => {
             let myresolve = (x) => {
-                console.log("sendStatusToRemote", new Date().toLocaleTimeString(), JSON.stringify(Status));
+                console.log("sendStatusToRemote", new Date().toLocaleTimeString(), JSON.stringify(this.Status));
                 resolve(x);
             };
             let myreject = (x) => { reject(x); };
             BoilerController.issending = true;
-            request.post(settings.savedataremoteurl, { form: JSON.stringify(Status) }, (err, res, body) => {
+            request.post(settings.savedataremoteurl, { form: JSON.stringify(this.Status) }, (err, res, body) => {
                 BoilerController.issending = false;
                 if (err) myreject(err);
-                else myresolve(Status);
+                else myresolve(this.Status);
             });
         });
     }
 
     static setRelay(val) {
-        if (parseInt(val) === parseInt(Status.relay)) return new Promise((resolve, reject) => { resolve(val); });
+        if (parseInt(val) === parseInt(this.Status.relay)) return new Promise((resolve, reject) => { resolve(val); });
         return this.sendCommand(settings.esp01url + settings.gpiourl, val).then((v) => {
-            Status.relay = parseInt(v);
-            Status.relayonline = 1;
+            this.Status.relay = parseInt(v);
+            this.Status.relayonline = 1;
             this.sendStatusToRemote().catch(console.error);
         }).catch((err) => {
             console.error("setRelay error", err);
-            Status.relayonline = 0;
+            this.Status.relayonline = 0;
             this.sendStatusToRemote();
         });
     }
 
     static setManual(val) {
         this.stopScheduler();
-        if (parseInt(val) === parseInt(Status.relay)) return;
+        if (parseInt(val) === parseInt(this.Status.relay)) return;
         this.sendCommand(settings.esp01url + settings.manualurl, 1).then((v) => {
             this.setRelay(parseInt(v));
         }).catch((err) => { console.error("setManualError", err); });
@@ -96,10 +97,9 @@ module.exports = class BoilerController {
         ReadRemoteData.loop("https://virgili.netsons.org/Status.json", 2000, (res) => {
             if (!res || BoilerController.issending == true) return;
             let status = JSON.parse(res);
-            let isChanged = this.compareJSON(status, Status);
+            let isChanged = this.compareJSON(status, this.Status);
             if (isChanged == true) {
                 console.log("isChanged", isChanged);
-                //Status = JSON.parse(JSON.stringify(status));
                 if (status.scheduler == 1) {
                     this.startScheduler();
                 } else {
@@ -112,10 +112,10 @@ module.exports = class BoilerController {
     static checkRelayStatus() {
         BoilerController.statusInterval = setInterval(() => {
             this.sendCommand("http://192.168.1.10/status/", "").then((v) => {
-                Status.relayonline = 1;
+                this.Status.relayonline = 1;
                 console.log("Relay online");
             }).catch(() => {
-                Status.relayonline = 0;
+                this.Status.relayonline = 0;
                 console.log("Relay offline");
             });
         }, 5000);
