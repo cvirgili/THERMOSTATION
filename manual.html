@@ -74,7 +74,8 @@
         <div id="msg"></div>
     </div>
     <script>
-        let Status;
+        let Status = {},
+            status = {};
         let interval, issending = false;
 
         function startScheduler() {
@@ -93,7 +94,6 @@
             issending = true;
             $.post("https://virgili.netsons.org/save-thermostation-data.php",
                 JSON.stringify(Status), (res) => {
-                    setStatus(JSON.parse(res));
                     issending = false;
                 }).fail(failMsg);
         }
@@ -110,16 +110,14 @@
 
         function failMsg(msg) {
             console.error("failMsg", msg);
-            $("#msg").text('no connection!\n' + JSON.stringify(msg));
+            $("#msg").text(msg);
         }
 
         function getRemoteStatus(cb) {
             if (issending == true) return;
             $.getJSON("https://virgili.netsons.org/Status.json", (res) => {
-                //$.get("https://virgili.netsons.org/read_boiler_status.php", (res) => {
-                //setStatus(JSON.parse(res));
                 setStatus(res);
-                failMsg(res);
+                failMsg(JSON.stringify(res));
                 if (cb) cb();
             }).fail(failMsg);
         }
