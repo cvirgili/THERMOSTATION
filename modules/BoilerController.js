@@ -99,11 +99,11 @@ module.exports = class BoilerController {
             let isChanged = this.compareJSON(status, Status);
             if (isChanged == true) {
                 console.log("isChanged", isChanged);
-                Status = JSON.parse(JSON.stringify(status));
-                if (Status.scheduler == 1) {
+                //Status = JSON.parse(JSON.stringify(status));
+                if (status.scheduler == 1) {
                     this.startScheduler();
                 } else {
-                    this.setManual(parseInt(Status.relay));
+                    this.setManual(parseInt(status.relay));
                 }
             }
         });
