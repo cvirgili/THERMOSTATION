@@ -14,7 +14,7 @@ module.exports = class BoilerController {
         BoilerController.issending = false;
         clearTimeout(BoilerController.timeout);
 
-        ReadRemoteData.getData(settings.getremoteurl, (res) => {
+        ReadRemoteData.getData("https://virgili.netsons.org/Status.json", (res) => {
             console.log("ReadRemoteData.getData", res);
         });
         this.checkRemote();
@@ -93,7 +93,8 @@ module.exports = class BoilerController {
     }
 
     static checkRemote() {
-        ReadRemoteData.loop(settings.getremoteurl, 2000, (res) => {
+        //ReadRemoteData.loop(settings.getremoteurl, 2000, (res) => {
+        ReadRemoteData.loop("https://virgili.netsons.org/Status.json", 2000, (res) => {
             if (!res || BoilerController.issending == true) return;
             let status = JSON.parse(res);
             let isChanged = this.compareJSON(status, Status);
