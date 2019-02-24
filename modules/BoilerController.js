@@ -100,7 +100,7 @@ module.exports = class BoilerController {
             let isChanged = this.compareJSON(status, this.Status);
             if (isChanged == true) {
                 console.log("isChanged", isChanged);
-                if (status.scheduler == 1) {
+                if (parseInt(status.scheduler) === 1) {
                     this.startScheduler();
                 } else {
                     this.setManual(parseInt(status.relay));
