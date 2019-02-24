@@ -27,7 +27,7 @@
             border-radius: 50%;
             padding: 0;
             color: green;
-            /* display: none; */
+            display: none;
             margin: auto;
         }
         
@@ -74,15 +74,8 @@
         <div id="msg"></div>
     </div>
     <script>
-        let relayStatus = 0;
-        let Status = {
-            "relay": 0,
-            "relayonline": 1,
-            "scheduler": 1,
-            "temp": 0,
-            "actualTreshold": 0,
-            "humi": 0
-        };
+        let Status;
+        let interval
 
         function startScheduler() {
             if (Status.scheduler === 1) return;
@@ -92,9 +85,7 @@
 
         function relayOnOff() {
             clearInterval(interval);
-            relayStatus = relayStatus == 0 ? 1 : 0;
-            console.log("relayStatus", relayStatus);
-            Status.relay = relayStatus;
+            Status.relay = Status.relay == 0 ? 1 : 0;
             Status.scheduler = 0;
             setRemoteData();
         }
@@ -110,7 +101,6 @@
         function setStatus(stat) {
             Status = JSON.parse(JSON.stringify(stat));
             $("#container button").prop("disabled", Status.relayonline == 0);
-            relayStatus = Status.relay;
             $('#relayStatus>span').removeClass("on off").addClass("bg-image").addClass(Status.relay == 1 ? "on" : "off");
             $('#scheduler').css({
                 "color": Status.scheduler == 1 ? "green" : "red"
@@ -119,21 +109,17 @@
         }
 
         function failMsg(msg) {
-            $('button').show();
-            isLocal = false;
             console.error("failMsg", msg);
-            $("#msg").text('no connection!');
+            $("#msg").text('no connection!\n' + msg);
         }
 
         function getRemoteStatus(cb) {
             $.get("https://virgili.netsons.org/read_boiler_status.php", (res) => {
                 setStatus(JSON.parse(res));
                 cb();
-            });
+                $('button').show();
+            }).fail(failMsg);
         }
-    </script>
-    <script>
-        let interval
 
         function compareJSON(json1, json2) {
             return JSON.stringify(json1) != JSON.stringify(json2);
@@ -142,10 +128,9 @@
         function loop() {
             interval = setInterval(function() {
                 $.get("https://virgili.netsons.org/read_boiler_status.php", function(res) {
-                    let stat = JSON.parse(res);
-                    setStatus(stat);
-                });
-            }, 2000);
+                    setStatus(JSON.parse(res));
+                }).fail(failMsg);
+            }, 4000);
         }
         $(function() {
             $.ajaxSetup({
