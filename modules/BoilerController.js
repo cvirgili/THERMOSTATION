@@ -5,7 +5,6 @@ const request = require('request');
 const Stat = require('./Status');
 const ReadRemoteData = require('./ReadRemoteData');
 const Scheduler = require('./Scheduler');
-//let Status = Stat.status;
 const settings = JSON.parse(fs.readFileSync(__basedir + '/data/settings.json'));
 
 module.exports = class BoilerController {
@@ -56,7 +55,6 @@ module.exports = class BoilerController {
     }
 
     static sendStatusToRemote() {
-        //Status.timestamp = new Date().getTime();
         return new Promise((resolve, reject) => {
             let myresolve = (x) => {
                 console.log("sendStatusToRemote", new Date().toLocaleTimeString(), JSON.stringify(this.Status));
