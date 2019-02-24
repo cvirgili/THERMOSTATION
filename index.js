@@ -64,6 +64,7 @@ app.get('/startscheduler', (req, res) => {
 
 app.get('/reboot', (req, res) => {
     reboot.reboot(console.log);
+    res.end("bye bye");
 });
 
 // http.listen(PORT, () => {
