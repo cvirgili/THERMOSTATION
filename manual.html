@@ -75,7 +75,7 @@
     </div>
     <script>
         let Status;
-        let interval
+        let interval, issending = false;
 
         function startScheduler() {
             if (Status.scheduler === 1) return;
@@ -84,17 +84,17 @@
         }
 
         function relayOnOff() {
-            clearInterval(interval);
             Status.relay = Status.relay == 0 ? 1 : 0;
             Status.scheduler = 0;
             setRemoteData();
         }
 
         function setRemoteData() {
+            issending = true;
             $.post("https://virgili.netsons.org/save-thermostation-data.php",
                 JSON.stringify(Status), (res) => {
                     setStatus(JSON.parse(res));
-                    loop();
+                    issending = false;
                 }).fail(failMsg);
         }
 
@@ -110,14 +110,14 @@
 
         function failMsg(msg) {
             console.error("failMsg", msg);
-            $("#msg").text('no connection!\n' + msg);
+            $("#msg").text('no connection!\n' + JSON.stringify(msg));
         }
 
         function getRemoteStatus(cb) {
+            if (issending == true) return;
             $.get("https://virgili.netsons.org/read_boiler_status.php", (res) => {
                 setStatus(JSON.parse(res));
-                cb();
-                $('button').show();
+                if (cb) cb();
             }).fail(failMsg);
         }
 
@@ -125,18 +125,15 @@
             return JSON.stringify(json1) != JSON.stringify(json2);
         }
 
-        function loop() {
-            interval = setInterval(function() {
-                $.get("https://virgili.netsons.org/read_boiler_status.php", function(res) {
-                    setStatus(JSON.parse(res));
-                }).fail(failMsg);
-            }, 4000);
+        function start() {
+            $('button').show();
+            interval = setInterval(getRemoteStatus, 4000);
         }
         $(function() {
             $.ajaxSetup({
                 cache: false
             });
-            getRemoteStatus(loop);
+            getRemoteStatus(start);
         });
     </script>
     <script type="text/javascript" src="assets/js/sw-init.js"></script>

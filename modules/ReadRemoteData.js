@@ -18,4 +18,12 @@ module.exports = class ReadRemoteData {
             settimeout();
         });
     }
+
+    static getData(url, cb) {
+        request.get(url, (err, res, body) => {
+            if (!err) {
+                cb(body);
+            }
+        });
+    }
 };

@@ -1,1 +1,1 @@
-{"relay":-1,"remoterelay":1,"relayonline":0,"scheduler":0,"temp":0,"actualTreshold":0,"humi":0}
+{ "relay": 0, "relayonline": 1, "scheduler": 1, "temp": 0, "actualTreshold": 0, "humi": 0 }

@@ -37,7 +37,7 @@ module.exports = class Scheduler {
 
     start() {
         return new Promise((resolve, reject) => {
-            if (this.isStart == true) reject("scheduler is already started");
+            if (this.isStart == true) { resolve(true); return; }
             Scheduler.schedData = JSON.parse(fs.readFileSync(__basedir + '/data/scheduler.json'));
             this.isStart = true;
             console.log("scheduler start");

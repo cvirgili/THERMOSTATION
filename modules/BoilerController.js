@@ -11,16 +11,21 @@ const settings = JSON.parse(fs.readFileSync(__basedir + '/data/settings.json'));
 module.exports = class BoilerController {
 
     static init() {
+        BoilerController.issending = false;
         clearTimeout(BoilerController.timeout);
-        this.sendStatusToRemote().then((stat) => {
-            console.log("init status", stat);
-            this.setRelay(0).then((v) => {
-                this.startScheduler();
-                this.checkRemote();
-            }).catch((err) => {
-                BoilerController.timeout = setTimeout(this.init, 5000);
-            });
-        }).catch(console.error);
+
+        ReadRemoteData.getData(settings.getremoteurl, (res) => {
+            console.log("ReadRemoteData.getData", res);
+        });
+        this.checkRemote();
+        // this.sendStatusToRemote().then((stat) => {
+        //     this.setRelay(0).then((v) => {
+        //         this.startScheduler();
+        //         this.checkRemote();
+        //     }).catch((err) => {
+        //         BoilerController.timeout = setTimeout(this.init, 5000);
+        //     });
+        // }).catch(console.error);
     }
 
     static startScheduler() {
@@ -44,17 +49,24 @@ module.exports = class BoilerController {
             let myresolve = (x) => { resolve(x); };
             let myreject = (x) => { reject(x); };
             request.get(url + val, (err, res, body) => {
+                if (!err) console.log("response from", url + val, body);
                 if (err) myreject(err);
-                else myresolve(val);
+                else myresolve(body);
             });
         });
     }
 
     static sendStatusToRemote() {
+        //Status.timestamp = new Date().getTime();
         return new Promise((resolve, reject) => {
-            let myresolve = (x) => { resolve(x); };
+            let myresolve = (x) => {
+                console.log("sendStatusToRemote", new Date().toLocaleTimeString(), JSON.stringify(Status));
+                resolve(x);
+            };
             let myreject = (x) => { reject(x); };
+            BoilerController.issending = true;
             request.post(settings.savedataremoteurl, { form: JSON.stringify(Status) }, (err, res, body) => {
+                BoilerController.issending = false;
                 if (err) myreject(err);
                 else myresolve(Status);
             });
@@ -75,14 +87,14 @@ module.exports = class BoilerController {
 
     static setManual(val) {
         this.stopScheduler();
-        this.sendCommand(settings.esp01url + settings.manualurl, 1).then(() => {
-            this.setRelay(val);
+        this.sendCommand(settings.esp01url + settings.manualurl, 1).then((v) => {
+            this.setRelay(v);
         }).catch((err) => { console.error("setManualError", err); });
     }
 
     static checkRemote() {
         ReadRemoteData.loop(settings.getremoteurl, 2000, (res) => {
-            if (!res) return;
+            if (!res || BoilerController.issending == true) return;
             let status = JSON.parse(res);
             let isChanged = this.compareJSON(status, Status);
             if (isChanged == true) {
