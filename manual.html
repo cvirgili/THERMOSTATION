@@ -91,6 +91,7 @@
 
         function setRemoteData() {
             issending = true;
+            Status.remote = 1;
             $.post("https://virgili.netsons.org/save-thermostation-data.php",
                 JSON.stringify(Status), (res) => {
                     setStatus(JSON.parse(res));

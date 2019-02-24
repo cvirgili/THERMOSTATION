@@ -13,19 +13,15 @@ module.exports = class BoilerController {
     static init() {
         BoilerController.issending = false;
         clearTimeout(BoilerController.timeout);
-
-        ReadRemoteData.getData("https://virgili.netsons.org/Status.json", (res) => {
-            console.log("ReadRemoteData.getData", res);
-        });
-        this.checkRemote();
-        // this.sendStatusToRemote().then((stat) => {
-        //     this.setRelay(0).then((v) => {
-        //         this.startScheduler();
-        //         this.checkRemote();
-        //     }).catch((err) => {
-        //         BoilerController.timeout = setTimeout(this.init, 5000);
-        //     });
-        // }).catch(console.error);
+        this.checkRelayStatus();
+        this.sendStatusToRemote().then((stat) => {
+            this.setRelay(0).then((v) => {
+                this.startScheduler();
+                this.checkRemote();
+            }).catch((err) => {
+                BoilerController.timeout = setTimeout(this.init, 5000);
+            });
+        }).catch(console.error);
     }
 
     static startScheduler() {
@@ -93,7 +89,6 @@ module.exports = class BoilerController {
     }
 
     static checkRemote() {
-        //ReadRemoteData.loop(settings.getremoteurl, 2000, (res) => {
         ReadRemoteData.loop("https://virgili.netsons.org/Status.json", 2000, (res) => {
             if (!res || BoilerController.issending == true) return;
             let status = JSON.parse(res);
@@ -108,6 +103,18 @@ module.exports = class BoilerController {
                 }
             }
         });
+    }
+
+    static checkRelayStatus() {
+        BoilerController.statusInterval = setInterval(() => {
+            this.sendCommand("http://192.168.1.10/status/", "").then((v) => {
+                Status.relayonline = 1;
+                console.log("Relay online");
+            }).catch(() => {
+                Status.relayonline = 0;
+                console.log("Relay offline");
+            });
+        }, 5000);
     }
 
     static compareJSON(json1, json2) {
