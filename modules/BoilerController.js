@@ -147,5 +147,4 @@ module.exports = class BoilerController {
     auto on
    
     */
-
 };
