@@ -43,6 +43,11 @@
             margin: 0;
         }
         
+        #msg {
+            font-size: 3vw;
+            text-align: left;
+        }
+        
         .bg-image {
             background-position: center;
             background-size: 50%;
@@ -71,7 +76,7 @@
     <div id="container">
         <div><button id="relayStatus" onclick="relayOnOff()"><span class="bg-image off"></span></button></div>
         <div><button id="scheduler" onclick="startScheduler()">S</button></div>
-        <div id="msg"></div>
+        <pre id="msg"></pre>
     </div>
     <script>
         let Status = {},
