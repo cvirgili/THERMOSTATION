@@ -145,15 +145,7 @@ module.exports = class BoilerController {
 
     111 => 7
     auto on
-
-
-
-
-
-    "temp":0,
-    "actualTreshold":0,
-    "humi":0
-    
+   
     */
 
 };
