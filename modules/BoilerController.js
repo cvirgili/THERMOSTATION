@@ -123,4 +123,37 @@ module.exports = class BoilerController {
         return JSON.stringify(json1) != JSON.stringify(json2);
     }
 
+    /*
+    
+    "relayonline":1,
+    "scheduler":1,
+    "relay":0,
+
+    Default
+    110 => 6
+
+    if < 4 (100) relay offline
+
+    100 => 4
+    manual off
+
+    101 => 5
+    manual on
+
+    110 => 6
+    auto off
+
+    111 => 7
+    auto on
+
+
+
+
+
+    "temp":0,
+    "actualTreshold":0,
+    "humi":0
+    
+    */
+
 };
