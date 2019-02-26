@@ -66,6 +66,7 @@ module.exports = class Scheduler {
 
     stop() {
         return new Promise((resolve, reject) => {
+            if (this.isStart == false) { resolve(true); return; }
             console.log("scheduler stop");
             clearTimeout(Scheduler.schedulerTimeout);
             this.isStart = false;

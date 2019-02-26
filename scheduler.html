@@ -4,20 +4,91 @@
     <style>
 
     </style>
+    <script type="text/javascript" src="./assets/js/jquery-3.3.1.min.js"></script>
 </head>
 
 <body>
-    <container>
-        <div id="1">Lunedi</div>
-        <div id="2">Martedì</div>
-        <div id="3">Mercoledì</div>
-        <div id="4">Giovedì</div>
-        <div id="5">Venerdì</div>
-        <div id="6">Sabato</div>
-        <div id="0">Domenica</div>
-    </container>
+    <form id="jobform">
+        <div id="container">
+        </div>
+        <input type="submit" value="salva" onclick="">
+    </form>
+    <div id="jobdata"></div>
+    <script type="text/javascript">
+        let c = 0;
+        let jobdata;
 
-    <script type="text/javascript"></script>
+        function sendData() {
+            $.post('https://virgili.netsons.org/save-scheduler.php', JSON.stringify(jobdata), () => {
+                alert("success!");
+            }).fail(() => {
+                alert("fail saving data")
+            });
+        }
+
+        function addJob(day) {
+            let job = window.prompt("add job", "0:0|0:0");
+            if (job == null || job == "") return;
+            $('#' + day).append('<div id="add' + c + '"><input class="job" data-id="' + day + '" type="text" value="' + job + '"/><button onclick="removeJob(\'add' + c + '\')">-</button></div>');
+            jobdata.week.find(el => {
+                return el.id == day;
+            }).jobs.push({
+                "jobid": "add" + c,
+                "on": {
+                    "treshold": 20,
+                    "hour": job.split("|")[0].split(":")[0],
+                    "minute": job.split("|")[0].split(":")[1]
+                },
+                "off": {
+                    "hour": job.split("|")[1].split(":")[0],
+                    "minute": job.split("|")[1].split(":")[1]
+                }
+            });
+            c++;
+
+        }
+
+        function removeJob(el) {
+            $('#' + el).remove();
+            jobdata.week.forEach(element => {
+                let x = 0;
+                element.jobs.forEach(it => {
+                    console.log(it.jobid, el);
+                    if (it.jobid == el) {
+                        element.jobs.splice(x, 1);
+                    }
+                    x++;
+                });
+            });
+        }
+
+        function fillData(data) {
+            $('#container').empty();
+            data.week.forEach(element => {
+                let jobs = "",
+                    count = 0;
+
+                element.jobs.forEach(jb => {
+                    jb.jobid = "def" + count;
+                    jobs += '<div id="def' + count + '"><input class="job" data-id="' + element.id + '" type="text" readonly name="job' + count + '" value="';
+                    jobs += jb.on.hour + ":" + jb.on.minute + "|" + jb.off.hour + ":" + jb.off.minute;
+                    jobs += '"/><button onclick="removeJob(\'def' + count + '\')">-</button></div>';
+                    count++;
+                })
+                $('#container').append('<div class="day" id="' + element.id + '">' + element.name + '<button onclick="addJob(' + element.id + ')">+</button><br/>' + jobs);
+            });
+            jobdata = data;
+        }
+
+        $('#jobform').submit((e) => {
+            e.preventDefault();
+            sendData();
+        });
+
+
+
+        $.getJSON('scheduler.json', fillData);
+    </script>
 </body>
 
 </html>
