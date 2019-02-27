@@ -50,7 +50,7 @@
         function addJob(day) {
             let job = window.prompt("add job", "0:0|0:0");
             if (job == null || job == "") return;
-            $('#' + day).append('<div id="add' + c + '"><input class="job" data-id="' + day + '" type="text" value="' + job + '"/><button onclick="removeJob(\'add' + c + '\')">-</button></div>');
+            $('#' + day).append('<div id="day' + day + 'add' + c + '"><input class="job" data-id="' + day + '" type="text" value="' + job + '"/><button onclick="removeJob(\'day' + day + 'add' + c + '\')">-</button></div>');
             jobdata.week.find(el => {
                 return el.id == day;
             }).jobs.push({
@@ -89,12 +89,12 @@
                     count = 0;
                 element.jobs.forEach(jb => {
                     jb.jobid = "def" + count;
-                    jobs += '<div id="def' + count + '"><input class="job" data-id="' + element.id + '" type="text" readonly name="job' + count + '" value="';
+                    jobs += '<div id="day' + element.id + 'def' + count + '"><input class="job" data-id="' + element.id + '" type="text" readonly name="job' + count + '" value="';
                     jobs += jb.on.hour + ":" + jb.on.minute + "|" + jb.off.hour + ":" + jb.off.minute;
-                    jobs += '"/><button onclick="removeJob(\'def' + count + '\')">-</button></div>';
+                    jobs += '"/><button onclick="removeJob(\'day' + element.id + 'def' + count + '\')">-</button></div>';
                     count++;
                 });
-                $('#container').append('<div class="day" id="' + element.id + '">' + element.name + '<button onclick="addJob(' + element.id + ')">+</button><br/>' + jobs);
+                $('#container').append('<div class="day" id="' + element.id + '"><p>' + element.name + '</p><button onclick="addJob(' + element.id + ')">+</button><br/>' + jobs);
             });
             jobdata = data;
         }
