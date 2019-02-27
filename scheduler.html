@@ -2,7 +2,28 @@
 
 <head>
     <style>
-
+        body {
+            margin: 0;
+            padding: 0;
+            overflow-y: hidden;
+            overflow-x: auto;
+        }
+        
+        #container {
+            width: 700vw;
+        }
+        
+        .day {
+            display: inline-block;
+            width: 100vw;
+        }
+        
+        #submit {
+            position: fixed;
+            left: 0;
+            bottom: 0;
+            width: 100vw;
+        }
     </style>
     <script type="text/javascript" src="./assets/js/jquery-3.3.1.min.js"></script>
 </head>
@@ -11,7 +32,7 @@
     <form id="jobform">
         <div id="container">
         </div>
-        <input type="submit" value="salva" onclick="">
+        <input id="submit" type="submit" value="salva" onclick="">
     </form>
     <div id="jobdata"></div>
     <script type="text/javascript">
@@ -45,7 +66,6 @@
                 }
             });
             c++;
-
         }
 
         function removeJob(el) {
@@ -67,14 +87,13 @@
             data.week.forEach(element => {
                 let jobs = "",
                     count = 0;
-
                 element.jobs.forEach(jb => {
                     jb.jobid = "def" + count;
                     jobs += '<div id="def' + count + '"><input class="job" data-id="' + element.id + '" type="text" readonly name="job' + count + '" value="';
                     jobs += jb.on.hour + ":" + jb.on.minute + "|" + jb.off.hour + ":" + jb.off.minute;
                     jobs += '"/><button onclick="removeJob(\'def' + count + '\')">-</button></div>';
                     count++;
-                })
+                });
                 $('#container').append('<div class="day" id="' + element.id + '">' + element.name + '<button onclick="addJob(' + element.id + ')">+</button><br/>' + jobs);
             });
             jobdata = data;
@@ -84,8 +103,6 @@
             e.preventDefault();
             sendData();
         });
-
-
 
         $.getJSON('scheduler.json', fillData);
     </script>
