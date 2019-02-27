@@ -1,21 +1,30 @@
 <html>
 
 <head>
+    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0">
+    <meta name="mobile-web-app-capable" content="yes">
+
     <style>
         body {
             margin: 0;
             padding: 0;
+            width: 100vw;
+            height: 100vh;
             overflow-y: hidden;
             overflow-x: auto;
         }
         
         #container {
+            display: block;
             width: 700vw;
+            height: 100vh;
         }
         
         .day {
             display: inline-block;
             width: 100vw;
+            height: 100vh;
+            text-align: center;
         }
         
         #submit {
@@ -40,8 +49,8 @@
         let jobdata;
 
         function sendData() {
-            $.post('https://virgili.netsons.org/save-scheduler.php', JSON.stringify(jobdata), () => {
-                alert("success!");
+            $.post('https://virgili.netsons.org/save-scheduler.php', JSON.stringify(jobdata), (data) => {
+                console.log(JSON.stringify(JSON.parse(data), null, 1));
             }).fail(() => {
                 alert("fail saving data")
             });
@@ -54,15 +63,15 @@
             jobdata.week.find(el => {
                 return el.id == day;
             }).jobs.push({
-                "jobid": "add" + c,
+                "jobid": "day" + day + "add" + c,
                 "on": {
                     "treshold": 20,
-                    "hour": job.split("|")[0].split(":")[0],
-                    "minute": job.split("|")[0].split(":")[1]
+                    "hour": parseInt(job.split("|")[0].split(":")[0]),
+                    "minute": parseInt(job.split("|")[0].split(":")[1])
                 },
                 "off": {
-                    "hour": job.split("|")[1].split(":")[0],
-                    "minute": job.split("|")[1].split(":")[1]
+                    "hour": parseInt(job.split("|")[1].split(":")[0]),
+                    "minute": parseInt(job.split("|")[1].split(":")[1])
                 }
             });
             c++;
@@ -88,13 +97,13 @@
                 let jobs = "",
                     count = 0;
                 element.jobs.forEach(jb => {
-                    jb.jobid = "def" + count;
+                    jb.jobid = "day" + element.id + "def" + count;
                     jobs += '<div id="day' + element.id + 'def' + count + '"><input class="job" data-id="' + element.id + '" type="text" readonly name="job' + count + '" value="';
                     jobs += jb.on.hour + ":" + jb.on.minute + "|" + jb.off.hour + ":" + jb.off.minute;
                     jobs += '"/><button onclick="removeJob(\'day' + element.id + 'def' + count + '\')">-</button></div>';
                     count++;
                 });
-                $('#container').append('<div class="day" id="' + element.id + '"><p>' + element.name + '</p><button onclick="addJob(' + element.id + ')">+</button><br/>' + jobs);
+                $('#container').append('<div class="day" id="' + element.id + '"><h2>' + element.name + '</h2><button onclick="addJob(' + element.id + ')">+</button><br/>' + jobs);
             });
             jobdata = data;
         }
@@ -105,6 +114,12 @@
         });
 
         $.getJSON('scheduler.json', fillData);
+
+        $(function() {
+            $.ajaxSetup({
+                cache: false
+            });
+        });
     </script>
 </body>
 
