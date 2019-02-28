@@ -8,7 +8,7 @@ module.exports = class Scheduler {
     constructor() {
         this.isStart = false;
         Scheduler.schedulerTimeout = null;
-        //this.chekData();
+        this.chekData();
     }
 
     resetTimerArray() {

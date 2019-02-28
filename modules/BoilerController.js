@@ -116,7 +116,7 @@ module.exports = class BoilerController {
                 this.Status.relayonline = 0;
                 console.log("Relay offline");
             });
-        }, 20000);
+        }, 60000);
     }
 
     static compareJSON(json1, json2) {
