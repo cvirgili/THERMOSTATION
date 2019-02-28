@@ -43,6 +43,7 @@ module.exports = class Scheduler {
             Scheduler.schedData = JSON.parse(fs.readFileSync(__basedir + '/data/scheduler.json'));
             this.isStart = true;
             console.log("scheduler start");
+            this.getJobsOfTheDay(new Date().getDay());
             this.loop();
             resolve(true);
         });
