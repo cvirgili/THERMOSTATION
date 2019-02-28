@@ -40,7 +40,7 @@ module.exports = class Scheduler {
     start() {
         return new Promise((resolve, reject) => {
             if (this.isStart == true) { resolve(true); return; }
-            //Scheduler.schedData = JSON.parse(fs.readFileSync(__basedir + '/data/scheduler.json'));
+            Scheduler.schedData = JSON.parse(fs.readFileSync(__basedir + '/data/scheduler.json'));
             this.isStart = true;
             console.log("scheduler start");
             this.loop(this.getJobsOfTheDay(new Date().getDay()));
@@ -82,8 +82,10 @@ module.exports = class Scheduler {
                 if (!err) {
                     if (body != JSON.stringify(Scheduler.schedData)) {
                         console.log("NEW SCHED", JSON.parse(body));
-                        Scheduler.schedData = JSON.parse(body);
-                        this.stop().then(() => { this.start(); }).catch(console.error);
+                        //Scheduler.schedData = JSON.parse(body);
+                        fs.writeFile(__basedir + '/data/scheduler.json', body, (err) => {
+                            this.stop().then(() => { this.start(); }).catch(console.error);
+                        });
                     }
                 } else {
                     console.error(err);
