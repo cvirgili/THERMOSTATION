@@ -1,51 +1,143 @@
 <html>
 
 <head>
-    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, user-scalable=no,initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.">
     <meta name="mobile-web-app-capable" content="yes">
     <style>
+        html,
         body {
             margin: 0;
             padding: 0;
-            width: 100vw;
-            height: 100vh;
-            overflow-y: hidden;
-            overflow-x: auto;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-family: 'Courier New', Courier, monospace;
         }
         
         #container {
-            display: block;
-            width: 700vw;
+            position: relative;
+            display: table;
+            width: 100vw;
             height: 100vh;
+            margin: 0;
+            padding: 0;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+        
+        .no-select {
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+        
+        .margin {
+            margin-top: 10px;
+        }
+        
+        .width100 {
+            width: 100%;
+        }
+        
+        .align-left {
+            text-align: left;
         }
         
         .day {
-            display: inline-block;
+            display: table-cell;
             width: 100vw;
             height: 100vh;
             text-align: center;
+        }
+        
+        .day h2 {
+            font-size: 6vh;
+            line-height: 12vh;
+            margin: 0;
         }
         
         #submit {
             position: fixed;
             left: 0;
             bottom: 0;
+        }
+        
+        .big-button {
             width: 100vw;
+            font-size: 5vh;
+        }
+        
+        .float-right {
+            float: right;
+        }
+        
+        .red-bg {
+            background-color: red;
+            border: none;
+            display: block;
+            font-size: 5vh;
+            color: white;
+            border-radius: 5vh;
+            margin-right: 15px;
+        }
+        
+        .job-time {
+            width: 100%;
+            margin: 15px;
+            font-size: 5vh;
+        }
+        
+        #time-picker {
+            display: none;
+        }
+        
+        nav {
+            width: 100%;
+            text-align: left;
+            position: absolute;
+            bottom: 45vh;
+            z-index: 100;
+        }
+        
+        nav a {
+            display: block;
+            width: 5vh;
+            height: 5vh;
+            padding: 1vh;
+            margin: 0;
+            background-color: green;
+            border-radius: 50%;
+            font-size: 5vh;
+            color: white;
+            text-align: center;
         }
     </style>
+    <link href="/pickerjs/picker.css" rel="stylesheet">
     <script type="text/javascript" src="./assets/js/jquery-3.3.1.min.js"></script>
+    <script type="text/javascript" src="./assets/js/swipe-horizontal.js"></script>
+    <script src="/pickerjs/picker.js"></script>
 </head>
 
 <body>
+    <nav>
+        <a href="/manual.html">C</a>
+    </nav>
+
+    <div id="time-picker"><input id="pick-time" type="text" value="0:00"></div>
     <form id="jobform">
         <div id="container">
         </div>
-        <input id="submit" type="submit" value="salva" onclick="">
+        <input id="submit" class="big-button" type="submit" value="SALVA" onclick="">
     </form>
     <div id="jobdata"></div>
     <script type="text/javascript">
         let c = 0;
         let jobdata;
+        let timePicker;
+        let today;
 
         function sendData() {
             $.post('https://virgili.netsons.org/save-scheduler.php', JSON.stringify(jobdata), (data) => {
@@ -56,24 +148,8 @@
         }
 
         function addJob(day) {
-            let job = window.prompt("add job", "0:0|0:0");
-            if (job == null || job == "") return;
-            $('#' + day).append('<div id="day' + day + 'add' + c + '"><input class="job" data-id="' + day + '" type="text" value="' + job + '"/><button onclick="removeJob(\'day' + day + 'add' + c + '\')">-</button></div>');
-            jobdata.week.find(el => {
-                return el.id == day;
-            }).jobs.push({
-                "jobid": "day" + day + "add" + c,
-                "on": {
-                    "treshold": 20,
-                    "hour": parseInt(job.split("|")[0].split(":")[0]),
-                    "minute": parseInt(job.split("|")[0].split(":")[1])
-                },
-                "off": {
-                    "hour": parseInt(job.split("|")[1].split(":")[0]),
-                    "minute": parseInt(job.split("|")[1].split(":")[1])
-                }
-            });
-            c++;
+            timePicker.show();
+            today = day;
         }
 
         function removeJob(el) {
@@ -97,14 +173,21 @@
                     count = 0;
                 element.jobs.forEach(jb => {
                     jb.jobid = "day" + element.id + "def" + count;
-                    jobs += '<div id="day' + element.id + 'def' + count + '"><input class="job" data-id="' + element.id + '" type="text" readonly name="job' + count + '" value="';
-                    jobs += jb.on.hour + ":" + jb.on.minute + "|" + jb.off.hour + ":" + jb.off.minute;
-                    jobs += '"/><button onclick="removeJob(\'day' + element.id + 'def' + count + '\')">-</button></div>';
+                    jobs += '<div class="align-left margin width100" id="day' + element.id + 'def' + count + '">';
+                    jobs += '<span class="job-time">' + padString(jb.on.hour) + ":" + padString(jb.on.minute) + " - " + padString(jb.off.hour) + ":" + padString(jb.off.minute) + ' </span>';
+                    jobs += '<button class="float-right red-bg" onclick="removeJob(\'day' + element.id + 'def' + count + '\')">X</button></div>';
                     count++;
                 });
-                $('#container').append('<div class="day" id="' + element.id + '"><h2>' + element.name + '</h2><button onclick="addJob(' + element.id + ')">+</button><br/>' + jobs);
+                $('#container').append('<div class="day wipe" id="' + element.id + '"><h2>' + element.name.toUpperCase() + '</h2><div class="margin"><button class="big-button" onclick="addJob(' + element.id + ')">AGGIUNGI</button></div>' + jobs);
             });
             jobdata = data;
+            SwipeHorizontal('container', 'day');
+
+        }
+
+        function padString(str) {
+            if (str < 10) str = "0" + str;
+            return str;
         }
 
         $('#jobform').submit((e) => {
@@ -112,12 +195,73 @@
             sendData();
         });
 
-        $.getJSON('scheduler.json', fillData);
 
         $(function() {
             $.ajaxSetup({
                 cache: false
             });
+
+            let title = "START";
+            let start, stop, count = 0;
+            const input = document.getElementById('pick-time');
+
+            timePicker = new Picker(input, {
+                format: 'HH:mm',
+                headers: true,
+                rows: 3,
+                text: {
+                    title: title,
+                    hour: "ore",
+                    minute: "minuti"
+                }
+            });
+            input.addEventListener('pick', (event) => {
+                if (count == 0) start = timePicker.getDate(true);
+                if (count == 1) stop = timePicker.getDate(true);
+            });
+            input.addEventListener('hidden', (event) => {
+                $('.picker-title').text((count == 0 ? "STOP" : "START"));
+                if (count == 0) {
+                    timePicker.show();
+                }
+                if (count == 1) {
+                    count = 0;
+                    if (checkJobDate() == false) {
+                        alert("Orari non corretti");
+                        return;
+                    };
+                    pushNewJob();
+                    fillData(jobdata);
+                    return;
+                }
+                count++;
+            });
+
+            //inserisce il nuovo job nei dati
+            function pushNewJob() {
+                jobdata.week.find(el => {
+                    return el.id == today;
+                }).jobs.push({
+                    "on": {
+                        "treshold": 20.0,
+                        "hour": parseInt(start.split(":")[0]),
+                        "minute": parseInt(start.split(":")[1])
+                    },
+                    "off": {
+                        "hour": parseInt(stop.split(":")[0]),
+                        "minute": parseInt(stop.split(":")[1])
+                    }
+                });
+            }
+
+            //verifica che lo start sia minore dello stop
+            function checkJobDate() {
+                let timestart = parseInt(start.split(":")[0]) * 60 + parseInt(start.split(":")[1]);
+                let timestop = parseInt(stop.split(":")[0]) * 60 + parseInt(stop.split(":")[1]);
+                if (timestart >= timestop) return false;
+                return true;
+            }
+            $.getJSON('scheduler.json', fillData);
         });
     </script>
 </body>
