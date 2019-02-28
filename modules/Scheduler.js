@@ -1,12 +1,14 @@
 /*jshint esversion:6*/
 const fs = require('fs');
 const BoilerController = require('./BoilerController');
+const request = require('request');
 
 module.exports = class Scheduler {
 
     constructor() {
         this.isStart = false;
         Scheduler.schedulerTimeout = null;
+        //this.chekData();
     }
 
     resetTimerArray() {
@@ -38,7 +40,7 @@ module.exports = class Scheduler {
     start() {
         return new Promise((resolve, reject) => {
             if (this.isStart == true) { resolve(true); return; }
-            Scheduler.schedData = JSON.parse(fs.readFileSync(__basedir + '/data/scheduler.json'));
+            //Scheduler.schedData = JSON.parse(fs.readFileSync(__basedir + '/data/scheduler.json'));
             this.isStart = true;
             console.log("scheduler start");
             this.loop(this.getJobsOfTheDay(new Date().getDay()));
@@ -74,9 +76,23 @@ module.exports = class Scheduler {
         });
     }
 
-    saveData(data) {
-        fs.writeFile(__basedir + '/data/scheduler.json', JSON.stringify(data, null, 1), (err) => {
-            if (err) console.error("scheduler json save error");
-        });
+    chekData() {
+        let loop = () => {
+            request.get("https://virgili.netsons.org/scheduler.json", (err, res, body) => {
+                if (!err) {
+                    if (body != JSON.stringify(Scheduler.schedData)) {
+                        console.log("NEW SCHED", JSON.parse(body));
+                        Scheduler.schedData = JSON.parse(body);
+                        this.stop().then(() => { this.start(); }).catch(console.error);
+                    }
+                } else {
+                    console.error(err);
+                }
+
+            });
+        }
+
+        let interval = setInterval(loop, 5000);
     }
+
 };
