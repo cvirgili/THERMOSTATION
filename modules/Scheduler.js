@@ -50,19 +50,22 @@ module.exports = class Scheduler {
     }
 
     loop() {
+        console.log("loop scheduler");
+        clearTimeout(Scheduler.schedulerTimeout);
         if (this.isStart == false) {
-            clearTimeout(Scheduler.schedulerTimeout);
+            // clearTimeout(Scheduler.schedulerTimeout);
             return;
         }
         let now = new Date();
         if (Scheduler.timerObject.today != now.getDay()) {
             this.stop().then(() => {
-                clearTimeout(Scheduler.schedulerTimeout);
+                // clearTimeout(Scheduler.schedulerTimeout);
                 this.start();
                 return;
             });
         }
         BoilerController.setRelay(Scheduler.timerObject[now.getHours() + "-" + now.getMinutes()].val).catch(console.error);
+
         let reloop = () => { this.loop(); };
         Scheduler.schedulerTimeout = setTimeout(reloop, 5000);
     }

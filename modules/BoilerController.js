@@ -13,7 +13,7 @@ module.exports = class BoilerController {
         this.Status = Stat.status;
         BoilerController.issending = false;
         clearTimeout(BoilerController.timeout);
-        this.checkRelayStatus();
+        //this.checkRelayStatus();
         this.sendStatusToRemote().then((stat) => {
             this.setRelay(0).then((v) => {
                 this.startScheduler();
