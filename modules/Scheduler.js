@@ -60,16 +60,13 @@ module.exports = class Scheduler {
     }
 
     loop() {
-        console.log("loop scheduler");
         clearTimeout(Scheduler.schedulerTimeout);
         if (this.isStart == false) {
-            // clearTimeout(Scheduler.schedulerTimeout);
             return;
         }
         let now = new Date();
         if (Scheduler.timerObject.today != now.getDay()) {
             this.stop().then(() => {
-                // clearTimeout(Scheduler.schedulerTimeout);
                 this.start();
                 return;
             });
