@@ -10,16 +10,17 @@ module.exports = class Scheduler {
         Scheduler.schedulerTimeout = null;
         Scheduler.schedData = JSON.parse(fs.readFileSync(__basedir + '/data/scheduler.json'));
         this.chekData();
+        this.timer = {};
     }
 
     resetTimerArray() {
-        let timer = {};
+        this.timer = {};
         for (let h = 0; h < 24; h++) {
             for (let m = 0; m < 60; m++) {
                 timer[h + "-" + m] = { "val": 0, "treshold": 0 };
             }
         }
-        return timer;
+        return this.timer;
     }
 
     getJobsOfTheDay(day) {
@@ -72,7 +73,7 @@ module.exports = class Scheduler {
             });
         }
         BoilerController.setRelay(Scheduler.timerObject[now.getHours() + "-" + now.getMinutes()].val).catch(console.error);
-
+        now = null;
         let reloop = () => { this.loop(); };
         Scheduler.schedulerTimeout = setTimeout(reloop, 5000);
     }
