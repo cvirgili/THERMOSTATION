@@ -8,6 +8,7 @@ module.exports = class Scheduler {
     constructor() {
         this.isStart = false;
         Scheduler.schedulerTimeout = null;
+        Scheduler.schedData = JSON.parse(fs.readFileSync(__basedir + '/data/scheduler.json'));
         this.chekData();
     }
 
@@ -40,11 +41,20 @@ module.exports = class Scheduler {
     start() {
         return new Promise((resolve, reject) => {
             if (this.isStart == true) { resolve(true); return; }
-            Scheduler.schedData = JSON.parse(fs.readFileSync(__basedir + '/data/scheduler.json'));
             this.isStart = true;
             console.log("scheduler start");
             this.getJobsOfTheDay(new Date().getDay());
             this.loop();
+            resolve(true);
+        });
+    }
+
+    stop() {
+        return new Promise((resolve, reject) => {
+            if (this.isStart == false) { resolve(true); return; }
+            console.log("scheduler stop");
+            clearTimeout(Scheduler.schedulerTimeout);
+            this.isStart = false;
             resolve(true);
         });
     }
@@ -70,15 +80,6 @@ module.exports = class Scheduler {
         Scheduler.schedulerTimeout = setTimeout(reloop, 5000);
     }
 
-    stop() {
-        return new Promise((resolve, reject) => {
-            if (this.isStart == false) { resolve(true); return; }
-            console.log("scheduler stop");
-            clearTimeout(Scheduler.schedulerTimeout);
-            this.isStart = false;
-            resolve(true);
-        });
-    }
 
     chekData() {
         let loop = () => {
@@ -96,9 +97,9 @@ module.exports = class Scheduler {
                 }
 
             });
-        }
+        };
 
         let interval = setInterval(loop, 5000);
     }
 
-}
+};
