@@ -21,7 +21,6 @@ module.exports = class Scheduler {
         return timer;
     }
 
-
     getJobsOfTheDay(day) {
         Scheduler.timerObject = this.resetTimerArray();
         Scheduler.timerObject.today = day;
