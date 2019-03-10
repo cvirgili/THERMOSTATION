@@ -81,7 +81,8 @@ module.exports = class Scheduler {
 
     chekData() {
         let loop = () => {
-            request.get("https://virgili.netsons.org/scheduler.json", (err, res, body) => {
+            //            request.get("https://virgili.netsons.org/scheduler.json", (err, res, body) => {
+            request.get("https://virgili.netsons.org/read_boiler_scheduler.php", (err, res, body) => {
                 if (!err) {
                     if (body != JSON.stringify(Scheduler.schedData)) {
                         console.log("NEW SCHED", JSON.parse(body));

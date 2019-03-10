@@ -92,7 +92,8 @@ module.exports = class BoilerController {
     }
 
     static checkRemote() {
-        ReadRemoteData.loop("https://virgili.netsons.org/Status.json", 2000, (res) => {
+        //        ReadRemoteData.loop("https://virgili.netsons.org/Status.json", 2000, (res) => {
+        ReadRemoteData.loop("https://virgili.netsons.org/read_boiler_status.php", 2000, (res) => {
             if (!res || BoilerController.issending == true) return;
             let status = JSON.parse(res);
             let isChanged = this.compareJSON(status, this.Status);
