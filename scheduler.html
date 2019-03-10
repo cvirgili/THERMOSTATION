@@ -169,7 +169,7 @@
 
         function fillData(data) {
             $('#container').empty();
-            data.week.forEach(element => {
+            JSON.parse(data).week.forEach(element => {
                 let jobs = "",
                     count = 0;
                 element.jobs.forEach(jb => {
@@ -262,7 +262,9 @@
                 if (timestart >= timestop) return false;
                 return true;
             }
-            $.getJSON('scheduler.json', fillData);
+            // $.getJSON('scheduler.json', fillData);
+
+            $.get('/read_boiler_scheduler.php', fillData);
         });
     </script>
 </body>
