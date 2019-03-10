@@ -141,9 +141,10 @@
         let today;
 
         function sendData() {
-            $.post('https://virgili.netsons.org/save-scheduler.php', JSON.stringify(jobdata), (data) => {
-                console.log(data);
-            }).fail(() => {
+            $.post('https://virgili.netsons.org/save-scheduler.php',
+                JSON.stringify(jobdata), (data) => {
+                    console.log(data);
+                }).fail(() => {
                 alert("fail saving data")
             });
         }
@@ -181,7 +182,7 @@
                 });
                 $('#container').append('<div class="day wipe" id="' + element.id + '"><h2>' + element.name.toUpperCase() + '</h2><div class="margin"><button class="big-button" onclick="addJob(' + element.id + ')">AGGIUNGI</button></div>' + jobs);
             });
-            jobdata = data;
+            jobdata = JSON.parse(data);
             SwipeHorizontal('container', 'day');
 
         }
@@ -264,7 +265,9 @@
             }
             // $.getJSON('scheduler.json', fillData);
 
-            $.get('/read_boiler_scheduler.php', fillData);
+            $.get('/read_boiler_scheduler.php', fillData).fail(() => {
+                alert("ERROR read_boiler_scheduler");
+            });
         });
     </script>
 </body>

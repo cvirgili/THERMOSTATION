@@ -1,11 +1,8 @@
 <?php
 header("Access-Control-Allow-Origin:*");
 header("Content-Type: text/plain");
-/*
-$filename="Status.json";
-$_SERVER["boiler-status"]=$post;
-file_put_contents($filename, $post);
-*/
+
+
 $post = file_get_contents("php://input");
 
 
