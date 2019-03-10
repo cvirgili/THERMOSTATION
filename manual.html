@@ -123,6 +123,7 @@
             issending = true;
             $.post("https://virgili.netsons.org/save-thermostation-data.php",
                 JSON.stringify(Status), (res) => {
+                    console.log(res);
                     issending = false;
                 }).fail(failMsg);
         }
@@ -146,7 +147,8 @@
             if (issending == true) return;
             //$.getJSON("https://virgili.netsons.org/Status.json", (res) => {
             $.get("https://virgili.netsons.org/read_boiler_status.php", (res) => {
-                setStatus(res);
+                console.log("get status", res);
+                setStatus(JSON.parse(res));
                 //failMsg(JSON.stringify(res, null, 1).replace("{", "").replace("}", ""));
                 if (cb) cb();
             }).fail(failMsg);

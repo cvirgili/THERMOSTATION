@@ -21,8 +21,7 @@ if ($conn->connect_error) {
     echo "connection ERROR";
     die("Connection failed: " . $conn->connect_error);
 } 
-
-$sql = "UPDATE thermostation SET STATUS=$post WHERE ID=0";
+$sql = "UPDATE thermostation SET STATUS='$post' WHERE ID=0";
 
 if ($conn->query($sql) === TRUE) {
     //echo "Record updated successfully";

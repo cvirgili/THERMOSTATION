@@ -1293,3 +1293,7 @@
 [10-Mar-2019 23:37:41 Europe/Berlin] PHP Recoverable fatal error:  Object of class mysqli_result could not be converted to string in /home/chnlwysx/public_html/read_boiler_status.php on line 31
 [10-Mar-2019 23:40:20 Europe/Berlin] PHP Parse error:  syntax error, unexpected 'else' (T_ELSE) in /home/chnlwysx/public_html/read_boiler_status.php on line 33
 [10-Mar-2019 23:40:23 Europe/Berlin] PHP Parse error:  syntax error, unexpected 'else' (T_ELSE) in /home/chnlwysx/public_html/read_boiler_status.php on line 33
+[11-Mar-2019 00:29:23 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to undefined function mysql_real_escape_string() in /home/chnlwysx/public_html/save-thermostation-data.php:24
+Stack trace:
+#0 {main}
+  thrown in /home/chnlwysx/public_html/save-thermostation-data.php on line 24

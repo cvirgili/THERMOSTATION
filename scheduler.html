@@ -142,7 +142,7 @@
 
         function sendData() {
             $.post('https://virgili.netsons.org/save-scheduler.php', JSON.stringify(jobdata), (data) => {
-                console.log(JSON.stringify(JSON.parse(data), null, 1));
+                console.log(data);
             }).fail(() => {
                 alert("fail saving data")
             });

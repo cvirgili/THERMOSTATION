@@ -1,11 +1,8 @@
 <?php
 header("Access-Control-Allow-Origin:*");
 header("Content-Type: text/plain");
-/*
-$filename="Status.json";
-$_SERVER["boiler-status"]=$post;
-file_put_contents($filename, $post);
-*/
+
+
 $post = file_get_contents("php://input");
 
 
@@ -21,7 +18,7 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 } 
 
-$sql = "UPDATE thermostation SET SCHEDULER=$post WHERE ID=0";
+$sql = "UPDATE thermostation SET SCHEDULER='$post' WHERE ID=0";
 
 if ($conn->query($sql) === TRUE) {
     //echo "Record updated successfully";
