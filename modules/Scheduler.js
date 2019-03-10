@@ -17,7 +17,7 @@ module.exports = class Scheduler {
         this.timer = {};
         for (let h = 0; h < 24; h++) {
             for (let m = 0; m < 60; m++) {
-                timer[h + "-" + m] = { "val": 0, "treshold": 0 };
+                this.timer[h + "-" + m] = { "val": 0, "treshold": 0 };
             }
         }
         return this.timer;
