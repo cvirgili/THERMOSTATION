@@ -8,17 +8,19 @@ module.exports = class Scheduler {
     constructor() {
         this.isStart = false;
         Scheduler.schedulerTimeout = null;
+        Scheduler.schedData = JSON.parse(fs.readFileSync(__basedir + '/data/scheduler.json'));
         this.chekData();
+        this.timer = {};
     }
 
     resetTimerArray() {
-        let timer = {};
+        this.timer = {};
         for (let h = 0; h < 24; h++) {
             for (let m = 0; m < 60; m++) {
                 timer[h + "-" + m] = { "val": 0, "treshold": 0 };
             }
         }
-        return timer;
+        return this.timer;
     }
 
     getJobsOfTheDay(day) {
@@ -40,31 +42,12 @@ module.exports = class Scheduler {
     start() {
         return new Promise((resolve, reject) => {
             if (this.isStart == true) { resolve(true); return; }
-            Scheduler.schedData = JSON.parse(fs.readFileSync(__basedir + '/data/scheduler.json'));
             this.isStart = true;
             console.log("scheduler start");
             this.getJobsOfTheDay(new Date().getDay());
             this.loop();
             resolve(true);
         });
-    }
-
-    loop() {
-        if (this.isStart == false) {
-            clearTimeout(Scheduler.schedulerTimeout);
-            return;
-        }
-        let now = new Date();
-        if (Scheduler.timerObject.today != now.getDay()) {
-            this.stop().then(() => {
-                clearTimeout(Scheduler.schedulerTimeout);
-                this.start();
-                return;
-            });
-        }
-        BoilerController.setRelay(Scheduler.timerObject[now.getHours() + "-" + now.getMinutes()].val).catch(console.error);
-        let reloop = () => { this.loop(); };
-        Scheduler.schedulerTimeout = setTimeout(reloop, 5000);
     }
 
     stop() {
@@ -76,6 +59,25 @@ module.exports = class Scheduler {
             resolve(true);
         });
     }
+
+    loop() {
+        clearTimeout(Scheduler.schedulerTimeout);
+        if (this.isStart == false) {
+            return;
+        }
+        let now = new Date();
+        if (Scheduler.timerObject.today != now.getDay()) {
+            this.stop().then(() => {
+                this.start();
+                return;
+            });
+        }
+        BoilerController.setRelay(Scheduler.timerObject[now.getHours() + "-" + now.getMinutes()].val).catch(console.error);
+        now = null;
+        let reloop = () => { this.loop(); };
+        Scheduler.schedulerTimeout = setTimeout(reloop, 5000);
+    }
+
 
     chekData() {
         let loop = () => {
@@ -93,9 +95,9 @@ module.exports = class Scheduler {
                 }
 
             });
-        }
+        };
 
         let interval = setInterval(loop, 5000);
     }
 
-}
+};
