@@ -12,6 +12,6 @@
 
 	// fclose($myfile);
 
-	echo $GLOBALS["scheduler"];
+	echo $_SERVER["scheduler"];
 
 ?>

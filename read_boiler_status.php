@@ -12,6 +12,6 @@
 
 	// fclose($myfile);
 
-	echo $GLOBALS["status"];
+	echo $_SERVER["boiler-status"];
 
 ?>
