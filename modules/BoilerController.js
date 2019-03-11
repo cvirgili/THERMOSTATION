@@ -62,7 +62,7 @@ module.exports = class BoilerController {
             };
             let myreject = (x) => { reject(x); };
             BoilerController.issending = true;
-            request.post(settings.savedataremoteurl, { form: JSON.stringify(this.Status) }, (err, res, body) => {
+            request.post(settings.savestatusurl, { form: JSON.stringify(this.Status) }, (err, res, body) => {
                 BoilerController.issending = false;
                 if (err) myreject(err);
                 else myresolve(this.Status);
