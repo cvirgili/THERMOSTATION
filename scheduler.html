@@ -170,7 +170,8 @@
 
         function fillData(data) {
             $('#container').empty();
-            JSON.parse(data).week.forEach(element => {
+            jobdata = JSON.parse(data);
+            jobdata.week.forEach(element => {
                 let jobs = "",
                     count = 0;
                 element.jobs.forEach(jb => {
@@ -182,7 +183,6 @@
                 });
                 $('#container').append('<div class="day wipe" id="' + element.id + '"><h2>' + element.name.toUpperCase() + '</h2><div class="margin"><button class="big-button" onclick="addJob(' + element.id + ')">AGGIUNGI</button></div>' + jobs);
             });
-            jobdata = JSON.parse(data);
             SwipeHorizontal('container', 'day');
 
         }
