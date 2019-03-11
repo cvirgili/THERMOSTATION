@@ -6,10 +6,7 @@ header("Content-Type: text/plain");
 $post = file_get_contents("php://input");
 
 
-$servername = "localhost";
-$username = "chnlwysx_wp656";
-$password = "m@tr966280";
-$dbname = "chnlwysx_wp656";
+include "db-settings.php";
 
 // Create connection
 $conn = new mysqli($servername, $username, $password, $dbname);

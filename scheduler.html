@@ -265,7 +265,7 @@
             }
             // $.getJSON('scheduler.json', fillData);
 
-            $.get('/read_boiler_scheduler.php', fillData).fail(() => {
+            $.get('/read_boiler_data.php?table=SCHEDULER', fillData).fail(() => {
                 alert("ERROR read_boiler_scheduler");
             });
         });

@@ -2,6 +2,8 @@
 const fs = require('fs');
 const BoilerController = require('./BoilerController');
 const request = require('request');
+const settings = require('./Settings');
+
 
 module.exports = class Scheduler {
 
@@ -81,8 +83,7 @@ module.exports = class Scheduler {
 
     chekData() {
         let loop = () => {
-            //            request.get("https://virgili.netsons.org/scheduler.json", (err, res, body) => {
-            request.get("https://virgili.netsons.org/read_boiler_scheduler.php", (err, res, body) => {
+            request.get(settings.getboilerdataurl + "SCHEDULER", (err, res, body) => {
                 if (!err) {
                     if (body != JSON.stringify(Scheduler.schedData)) {
                         console.log("NEW SCHED", JSON.parse(body));

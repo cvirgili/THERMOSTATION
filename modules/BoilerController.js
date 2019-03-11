@@ -5,7 +5,7 @@ const request = require('request');
 const Stat = require('./Status');
 const ReadRemoteData = require('./ReadRemoteData');
 const Scheduler = require('./Scheduler');
-const settings = JSON.parse(fs.readFileSync(__basedir + '/data/settings.json'));
+const settings = require('./Settings'); //JSON.parse(fs.readFileSync(__basedir + '/data/settings.json'));
 
 module.exports = class BoilerController {
 
@@ -93,7 +93,7 @@ module.exports = class BoilerController {
 
     static checkRemote() {
         //        ReadRemoteData.loop("https://virgili.netsons.org/Status.json", 2000, (res) => {
-        ReadRemoteData.loop("https://virgili.netsons.org/read_boiler_status.php", 2000, (res) => {
+        ReadRemoteData.loop(settings.getboilerdataurl + "STATUS", 2000, (res) => {
             if (!res || BoilerController.issending == true) return;
             let status = JSON.parse(res);
             let isChanged = this.compareJSON(status, this.Status);
