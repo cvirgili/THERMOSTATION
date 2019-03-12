@@ -112,12 +112,12 @@ module.exports = class BoilerController {
         BoilerController.statusInterval = setInterval(() => {
             this.sendCommand("http://192.168.1.10/status/", "").then((v) => {
                 this.Status.relayonline = 1;
-                console.log("Relay online");
+                this.sendCommand(settings.esp01url + settings.gpiourl, v);
             }).catch(() => {
                 this.Status.relayonline = 0;
                 console.log("Relay offline");
             });
-        }, 60000);
+        }, 30000);
     }
 
     static compareJSON(json1, json2) {
