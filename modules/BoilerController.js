@@ -47,7 +47,7 @@ module.exports = class BoilerController {
             request.get(url + val, (err, res, body) => {
                 if (err) myreject(err);
                 else {
-                    console.log("response from", url + val, body);
+                    console.log(new Date().toLocaleTimeString(), "response from", url + val, body);
                     myresolve(body);
                 }
             });
@@ -57,7 +57,7 @@ module.exports = class BoilerController {
     static sendStatusToRemote() {
         return new Promise((resolve, reject) => {
             let myresolve = (x) => {
-                console.log("sendStatusToRemote", new Date().toLocaleTimeString(), JSON.stringify(this.Status));
+                console.log(new Date().toLocaleTimeString(), "sendStatusToRemote", JSON.stringify(this.Status));
                 resolve(x);
             };
             let myreject = (x) => { reject(x); };
