@@ -17,7 +17,7 @@ module.exports = class BoilerController {
         this.sendStatusToRemote().then((stat) => {
             this.setRelay(0).then((v) => {
                 this.startScheduler();
-                this.checkRemote();
+                //this.checkRemote();
             }).catch((err) => {
                 BoilerController.timeout = setTimeout(this.init, 5000);
             });
