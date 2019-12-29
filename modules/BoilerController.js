@@ -14,14 +14,14 @@ module.exports = class BoilerController {
         BoilerController.issending = false;
         clearTimeout(BoilerController.timeout);
         this.checkRelayStatus();
-        this.sendStatusToRemote().then((stat) => {
-            this.setRelay(0).then((v) => {
-                this.startScheduler();
-                //this.checkRemote();
-            }).catch((err) => {
-                BoilerController.timeout = setTimeout(this.init, 5000);
-            });
-        }).catch(console.error);
+        // this.sendStatusToRemote().then((stat) => {
+        //     this.setRelay(0).then((v) => {
+        //         this.startScheduler();
+        //         //this.checkRemote();
+        //     }).catch((err) => {
+        //         BoilerController.timeout = setTimeout(this.init, 5000);
+        //     });
+        // }).catch(console.error);
     }
 
     static startScheduler() {
