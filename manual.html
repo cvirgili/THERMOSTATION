@@ -27,7 +27,7 @@
             border-radius: 50%;
             padding: 0;
             color: green;
-            /* display: none; */
+            display: none;
             margin: auto;
         }
         
@@ -103,43 +103,42 @@
         <pre id="msg"></pre>
     </div>
     <script>
-        //        let Status = {},
-        let Status = {
-                scheduler: 0,
+        var Status = {
                 relay: 0,
+                scheduler: 0,
                 relayonline: 1
             },
-            status = {};
-        let interval, issending = false;
+            issending = false;
+        let interval;
+
+        // console.log("\n\n\n\n", JSON.stringify(Status), "\n\n\n\n");
 
         function startScheduler() {
-            // if (Status.scheduler === 1) return;
-            // Status.scheduler = 1;
-            // setRemoteData();
+            if (Status.scheduler === 1) return;
+            Status.scheduler = 1;
+            setRemoteData();
         }
 
         function relayOnOff() {
+            // console.log("relayOnOff Before relay", Status.relay);
             Status.relay = Status.relay == 0 ? 1 : 0;
             Status.scheduler = 0;
+            // console.log("relayOnOff After relay", Status.relay);
             setRemoteData();
         }
 
         function setRemoteData() {
-            $.get('http://192.168.1.10/gpio/' + Status.relay, (res) => {
-                setStatus();
-            });
-            // issending = true;
-            // $.post("https://virgili.netsons.org/save-thermostation-data.php",
-            //     JSON.stringify(Status), (res) => {
-            //         console.log(res);
-            //         issending = false;
-            //     }).fail(failMsg);
-
-
+            issending = true;
+            // console.log("setRemoteData Status", Status);
+            $.post("https://virgili.netsons.org/save-thermostation-data.php",
+                JSON.stringify(Status), (res) => {
+                    //console.log("setRemoteData res", res);
+                    issending = false;
+                }).fail(failMsg);
         }
 
-        function setStatus() {
-            //Status = JSON.parse(JSON.stringify(stat));
+        function setStatus(stat) {
+            Status = stat;
             $("#container button").prop("disabled", Status.relayonline == 0);
             $('#relayStatus>span').removeClass("on off").addClass("bg-image").addClass(Status.relay == 1 ? "on" : "off");
             $('#scheduler').css({
@@ -156,8 +155,9 @@
         function getRemoteStatus(cb) {
             if (issending == true) return;
             $.get("https://virgili.netsons.org/read_boiler_data.php?table=STATUS", (res) => {
-                console.log("get status", res);
+                Status = JSON.parse(res);
                 setStatus(JSON.parse(res));
+                // console.log("get status", Status);
                 if (cb) cb();
             }).fail(failMsg);
         }
@@ -168,20 +168,14 @@
 
         function start() {
             $('button').show();
-            //interval = setInterval(getRemoteStatus, 1000);
+            interval = setInterval(getRemoteStatus, 2000);
         }
         $(function() {
             $.ajaxSetup({
                 cache: false
             });
-            //getRemoteStatus(start);
+            getRemoteStatus(start);
         });
-        console.log("status", Status);
-        $.get('http://192.168.1.10/status/', (stat) => {
-            console.log("Relay status", stat);
-            Status.relay = parseInt(stat);
-            setStatus();
-        }).fail(console.log);
     </script>
     <script type="text/javascript" src="assets/js/sw-init.js"></script>
 
