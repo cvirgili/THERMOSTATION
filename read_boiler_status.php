@@ -23,7 +23,7 @@
 		die("Connection failed: " . $conn->connect_error);
 	} 
 	
-	$sql = "SELECT STATUS FROM thermostation WHERE ID=0";
+	$sql = "SELECT STATUS FROM THERMOSTATION WHERE ID=0";
 	
 	$result = $conn->query($sql);
 

@@ -16,7 +16,7 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 } 
 
-$sql = "UPDATE thermostation SET SCHEDULER='$post' WHERE ID=0";
+$sql = "UPDATE THERMOSTATION SET SCHEDULER='$post' WHERE ID=0";
 
 if ($conn->query($sql) === TRUE) {
     //echo "Record updated successfully";
