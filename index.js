@@ -11,7 +11,7 @@ var bodyParser = require('body-parser');
 var PORT = 5000;
 const fs = require('fs');
 const Status = require('./modules/Status').status;
-const Scheduler = require('./modules/Scheduler');
+//const Scheduler = require('./modules/Scheduler');
 const BoilerController = require('./modules/BoilerController');
 const options = {
     key: fs.readFileSync('key.pem'),
@@ -75,7 +75,7 @@ app.get('/reboot', (req, res) => {
 
 server.listen(PORT, function() {
     console.log('app listening on port', PORT);
-    BoilerController.scheduler = new Scheduler();
+    //BoilerController.scheduler = new Scheduler();
     BoilerController.init();
 });
 /*

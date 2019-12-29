@@ -3,7 +3,7 @@
 const fs = require('fs');
 const request = require('request');
 const Stat = require('./Status');
-const ReadRemoteData = require('./ReadRemoteData');
+//const ReadRemoteData = require('./ReadRemoteData');
 const Scheduler = require('./Scheduler');
 const settings = require('./Settings'); //JSON.parse(fs.readFileSync(__basedir + '/data/settings.json'));
 
