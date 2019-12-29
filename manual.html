@@ -110,13 +110,13 @@
         function startScheduler() {
             if (Status.scheduler === 1) return;
             Status.scheduler = 1;
-            //setRemoteData();
+            setRemoteData();
         }
 
         function relayOnOff() {
             Status.relay = Status.relay == 0 ? 1 : 0;
             Status.scheduler = 0;
-            //setRemoteData();
+            setRemoteData();
         }
 
         function setRemoteData() {
