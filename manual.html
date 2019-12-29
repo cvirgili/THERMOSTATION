@@ -103,14 +103,19 @@
         <pre id="msg"></pre>
     </div>
     <script>
-        let Status = {},
+        //        let Status = {},
+        let Status = {
+                scheduler: 0,
+                relay: 0,
+                relayonline: 1
+            },
             status = {};
         let interval, issending = false;
 
         function startScheduler() {
-            if (Status.scheduler === 1) return;
-            Status.scheduler = 1;
-            setRemoteData();
+            // if (Status.scheduler === 1) return;
+            // Status.scheduler = 1;
+            // setRemoteData();
         }
 
         function relayOnOff() {
@@ -120,16 +125,21 @@
         }
 
         function setRemoteData() {
-            issending = true;
-            $.post("https://virgili.netsons.org/save-thermostation-data.php",
-                JSON.stringify(Status), (res) => {
-                    console.log(res);
-                    issending = false;
-                }).fail(failMsg);
+            $.get('http://192.168.1.10/gpio/' + Status.relay, (res) => {
+                setStatus();
+            });
+            // issending = true;
+            // $.post("https://virgili.netsons.org/save-thermostation-data.php",
+            //     JSON.stringify(Status), (res) => {
+            //         console.log(res);
+            //         issending = false;
+            //     }).fail(failMsg);
+
+
         }
 
-        function setStatus(stat) {
-            Status = JSON.parse(JSON.stringify(stat));
+        function setStatus() {
+            //Status = JSON.parse(JSON.stringify(stat));
             $("#container button").prop("disabled", Status.relayonline == 0);
             $('#relayStatus>span').removeClass("on off").addClass("bg-image").addClass(Status.relay == 1 ? "on" : "off");
             $('#scheduler').css({
@@ -166,6 +176,12 @@
             });
             //getRemoteStatus(start);
         });
+        console.log("status", Status);
+        $.get('http://192.168.1.10/status/', (stat) => {
+            console.log("Relay status", stat);
+            Status.relay = parseInt(stat);
+            setStatus();
+        }).fail(console.log);
     </script>
     <script type="text/javascript" src="assets/js/sw-init.js"></script>
 
