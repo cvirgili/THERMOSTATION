@@ -9,8 +9,8 @@ const fs = require('fs');
 
 //request.get("https://virgili.netsons.org/scheduler.json", (res, err, body) => { console.log(JSON.parse(body)); });
 
-//const boilerMaster = require('./modules/BoilerMasterControl')();
+const boilerMaster = require('./modules/BoilerMasterControl')();
 
-//boilerMaster.start();
+boilerMaster.start();
 
-console.log(JSON.stringify(JSON.parse(fs.readFileSync('scheduler.json'))));
+//console.log(JSON.stringify(JSON.parse(fs.readFileSync('scheduler.json'))));

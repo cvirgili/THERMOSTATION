@@ -6,7 +6,7 @@
 
 	include 'db-settings.php';
 	
-	$table=$_GET["table"];
+	//$table=$_GET["table"];
 	// Create connection
 	$conn = new mysqli($servername, $username, $password, $dbname,$port);
 	// Check connection
@@ -20,7 +20,8 @@
 
 if ($result->num_rows > 0) {
 	while($row = $result->fetch_assoc()) {
-		echo $row[$table];
+		//echo $row[$table];
+		echo "{\"status\":".$row["STATUS"].",\"scheduler\":".$row["SCHEDULER"]."}";
 	}
 	} else {
 		echo "Error: " . $conn->error;

@@ -3,6 +3,7 @@ const request = require('request');
 
 module.exports = () => {
     var interval, issaving, relayactualstatus = 0;
+    var SCHEDULER;
     var STATUS = {
         relay: 0,
         relayonline: 1,
@@ -15,15 +16,17 @@ module.exports = () => {
     function getRemoteData() {
         if (issaving == true) return;
         request.get(settings.getboilerdataurl + "STATUS", (err, res, body) => {
-            console.log("response", body);
+            console.log("response STATUS", body);
             if (!err) {
-                STATUS = JSON.parse(body);
+                STATUS = JSON.parse(body).status;
+                SCHEDULER = JSON.parse(body).scheduler;
                 console.log("STATUS", STATUS);
+                console.log("SCHEDULER", SCHEDULER);
                 setRelay();
             } else {
                 console.log(err);
             }
-        })
+        });
     }
 
     function setRemoteData() {
@@ -60,7 +63,7 @@ module.exports = () => {
     return {
         start() {
             console.log("START");
-            interval = setInterval(getRemoteData, 2000);
+            interval = setInterval(getRemoteData, 4000);
         },
 
         stop() {
