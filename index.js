@@ -13,10 +13,10 @@ const fs = require('fs');
 const Status = require('./modules/Status').status;
 //const Scheduler = require('./modules/Scheduler');
 const BoilerController = require('./modules/BoilerController');
-const options = {
-    key: fs.readFileSync('key.pem'),
-    cert: fs.readFileSync('cert.pem')
-};
+// const options = {
+//     key: fs.readFileSync('key.pem'),
+//     cert: fs.readFileSync('cert.pem')
+// };
 
 const reboot = require('./modules/reboot');
 //https.globalAgent.options.rejectUnauthorized = false;
