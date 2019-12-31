@@ -155,8 +155,8 @@
         function getRemoteStatus(cb) {
             if (issending == true) return;
             $.get("https://virgili.netsons.org/read_boiler_data.php?table=STATUS", (res) => {
-                Status = JSON.parse(res);
-                setStatus(JSON.parse(res));
+                Status = JSON.parse(res).status;
+                setStatus(JSON.parse(res).status);
                 // console.log("get status", Status);
                 if (cb) cb();
             }).fail(failMsg);

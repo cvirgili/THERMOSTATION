@@ -33,8 +33,10 @@ module.exports = () => {
         setData(data) {
             schedData = data;
         },
-        getTimerObject() {
-            return timerObject;
+        checkJob() {
+            let now = new Date();
+            console.log(now.toLocaleTimeString(), "check job");
+            return getJobsOfTheDay(now.getDay())[now.getHours() + "-" + now.getMinutes()].val;
         }
 
     }

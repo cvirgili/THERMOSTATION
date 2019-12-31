@@ -1,5 +1,6 @@
 const settings = require('./Settings');
 const request = require('request');
+const scheduler = require('./SchedulerMasterControl')();
 
 module.exports = () => {
     var interval, issaving, relayactualstatus = 0;
@@ -16,24 +17,28 @@ module.exports = () => {
     function getRemoteData() {
         if (issaving == true) return;
         request.get(settings.getboilerdataurl + "STATUS", (err, res, body) => {
-            console.log("response STATUS", body);
             if (!err) {
+                console.log(new Date().toLocaleTimeString(), "get data");
                 STATUS = JSON.parse(body).status;
                 SCHEDULER = JSON.parse(body).scheduler;
-                console.log("STATUS", STATUS);
-                console.log("SCHEDULER", SCHEDULER);
-                setRelay();
+                scheduler.setData(SCHEDULER);
+                checkMode();
             } else {
                 console.log(err);
             }
         });
     }
 
+    function checkMode() { //manual or scheduled
+        if (STATUS.scheduler == 1) STATUS.relay = scheduler.checkJob();
+        setRelay();
+    }
+
     function setRemoteData() {
         issaving = true;
         request.post(settings.savestatusurl, { form: JSON.stringify(STATUS) }, (err, res, body) => {
             if (err) console.error(err);
-            else console.log("setRemoteData", body)
+            else console.log("setRemoteData ok", body)
             issaving = false;
         });
     }
@@ -44,18 +49,13 @@ module.exports = () => {
         request.get(settings.esp01url + settings.gpiourl + STATUS.relay, (err, res, body) => {
             if (err) {
                 console.error("setRelay", err);
-                if (STATUS.relayonline == 1) {
-                    STATUS.relayonline = 0;
-                    setRemoteData();
-                }
+                STATUS.relayonline = 0;
             } else {
                 relayactualstatus = parseInt(body);
                 console.log("relayactualstatus", relayactualstatus);
-                if (STATUS.relayonline == 0) {
-                    STATUS.relayonline = 1;
-                    setRemoteData();
-                }
+                STATUS.relayonline = 1;
             }
+            setRemoteData();
             issaving = false;
         });
     }
@@ -65,11 +65,9 @@ module.exports = () => {
             console.log("START");
             interval = setInterval(getRemoteData, 4000);
         },
-
         stop() {
             console.log("STOP");
             clearInterval(interval);
-            //clearTimeout(interval);
         }
     }
 

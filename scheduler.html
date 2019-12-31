@@ -170,10 +170,11 @@
 
         function fillData(data) {
             $('#container').empty();
-            jobdata = JSON.parse(data);
+            jobdata = data; //JSON.parse(data);
             jobdata.week.forEach(element => {
                 let jobs = "",
                     count = 0;
+                console.log("week element", element);
                 element.jobs.forEach(jb => {
                     jb.jobid = "day" + element.id + "def" + count;
                     jobs += '<div class="align-left margin width100" id="day' + element.id + 'def' + count + '">';
@@ -233,7 +234,7 @@
                         return;
                     };
                     pushNewJob();
-                    fillData(JSON.stringify(jobdata));
+                    fillData(jobdata);
                     return;
                 }
                 count++;
@@ -265,9 +266,17 @@
             }
             // $.getJSON('scheduler.json', fillData);
 
-            $.get('/read_boiler_data.php?table=SCHEDULER', fillData).fail(() => {
-                alert("ERROR read_boiler_scheduler");
-            });
+            // $.get('/read_boiler_data.php', (data) => {
+            //     console.log(data);
+            //     fillData(JSON.parse(data).scheduler);
+            // }).fail(() => {
+            //     alert("ERROR read_boiler_scheduler");
+            // });
+
+            fetch('/read_boiler_data.php').then(res => res.json()).then(res => {
+                console.log(res);
+                fillData(res.scheduler);
+            }).catch(alert);
         });
     </script>
 </body>
