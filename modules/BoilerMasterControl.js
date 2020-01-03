@@ -62,10 +62,9 @@ module.exports = () => {
     }
 
     function setRemoteData() {
-        axios.post(settings.savestatusurl, STATUS)
-            .then(res => { console.log("setRemoteData ok", res); })
-            .catch(console.error)
-            .finally(() => { startloop(); });
+        axios.post(settings.savestatusurl, STATUS).then(res => {
+            console.log("setRemoteData ok", res);
+        }).catch(console.error).finally(() => { startloop(); });
     }
 
     function startloop() {
