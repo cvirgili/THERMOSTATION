@@ -11,6 +11,9 @@ const fs = require('fs');
 
 const boilerMaster = require('./modules/BoilerMasterControl')();
 
-boilerMaster.start();
+//boilerMaster.start();
 
 //console.log(JSON.stringify(JSON.parse(fs.readFileSync('scheduler.json'))));
+
+
+console.log(fs.readFileSync('https://virgili.netsons.org/read_boiler_data.php'));
