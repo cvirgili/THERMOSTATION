@@ -25,7 +25,8 @@ module.exports = () => {
             SCHEDULER = res.data.scheduler;
             scheduler.setData(SCHEDULER);
             checkMode();
-        }).catch(console.error);
+        }).catch((err) => { console.error(err);
+            startloop() });
     }
 
     function checkMode() { //manual or scheduled
