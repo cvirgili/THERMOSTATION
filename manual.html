@@ -130,7 +130,7 @@
         function setRemoteData() {
             issending = true;
             // console.log("setRemoteData Status", Status);
-            $.post("https://virgili.netsons.org/save-thermostation-data.php",
+            $.post("/save-thermostation-data.php",
                 JSON.stringify(Status), (res) => {
                     //console.log("setRemoteData res", res);
                     issending = false;
@@ -154,7 +154,7 @@
 
         function getRemoteStatus(cb) {
             if (issending == true) return;
-            $.get("https://virgili.netsons.org/read_boiler_data.php?table=STATUS", (res) => {
+            $.get("/read_boiler_data.php", (res) => {
                 Status = JSON.parse(res).status;
                 setStatus(JSON.parse(res).status);
                 // console.log("get status", Status);
