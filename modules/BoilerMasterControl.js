@@ -20,13 +20,15 @@ module.exports = () => {
         stoploop();
         axios.get(settings.getboilerdataurl).then(res => {
             console.log(new Date().toLocaleTimeString(), "get data");
-            console.log(res.data.status);
+            console.log("res status", res.data.status);
             STATUS = res.data.status;
             SCHEDULER = res.data.scheduler;
             scheduler.setData(SCHEDULER);
             checkMode();
-        }).catch((err) => { console.error(err);
-            startloop() });
+        }).catch((err) => {
+            console.error(err);
+            startloop()
+        });
     }
 
     function checkMode() { //manual or scheduled
@@ -63,8 +65,9 @@ module.exports = () => {
     }
 
     function setRemoteData() {
-        axios.post(settings.savestatusurl, STATUS).then(res => {
-            console.log("setRemoteData ok", res.data);
+        console.log("setRemoteData STATUS", STATUS);
+        axios.get(settings.savestatusurl, { params: { status: JSON.stringify(STATUS) } }).then(res => {
+            console.log("setRemoteData ok", res);
         }).catch(console.error).finally(() => { startloop(); });
     }
 

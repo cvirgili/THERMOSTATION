@@ -1,0 +1,70 @@
+@font-face {
+    font-family: tech;
+    src: url("/assets/fonts/Techno LCD.ttf");
+}
+
+html,
+body {
+    padding: 0;
+    margin: 0;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    font-family: tech;
+    background-image: linear-gradient(rgb(0, 0, 0) 80%, rgb(10, 0, 148));
+}
+
+.no-select {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+#container {
+    position: relative;
+    display: table;
+    width: 100vw;
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+    white-space: nowrap;
+    transition: all 0.2s;
+}
+
+.wipe {
+    display: table-cell;
+    width: 100vw;
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+    color: #bdecff;
+    text-align: center;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.644);
+    top: 0;
+}
+
+.title {
+    height: 20vh;
+    font-size: 10vw;
+    text-transform: uppercase;
+}
+
+.row {
+    height: 80vh;
+    font-size: 10vw;
+    padding-top: 2vh;
+}
+
+.row p {
+    padding: 0;
+    margin: 0;
+}
+
+.canvas {
+    width: 80vw;
+    height: 30vh;
+    text-align: center;
+}

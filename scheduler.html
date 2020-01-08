@@ -116,15 +116,15 @@
             text-decoration: none;
         }
     </style>
-    <link href="/pickerjs/picker.css" rel="stylesheet">
+    <link href="./assets/pickerjs/picker.min.css" rel="stylesheet">
     <script type="text/javascript" src="./assets/js/jquery-3.3.1.min.js"></script>
     <script type="text/javascript" src="./assets/js/swipe-horizontal.js"></script>
-    <script src="/pickerjs/picker.js"></script>
+    <script src="./assets/pickerjs/picker.min.js"></script>
 </head>
 
 <body>
     <nav>
-        <a href="/manual.html">C</a>
+        <a href="./manual.html">C</a>
     </nav>
 
     <div id="time-picker"><input id="pick-time" type="text" value="0:00"></div>
@@ -141,11 +141,12 @@
         let today;
 
         function sendData() {
-            $.post('/save-scheduler.php',
-                JSON.stringify(jobdata), (data) => {
-                    console.log(data);
-                }).fail(() => {
-                alert("fail saving data")
+            $.get('./save-scheduler.php', {
+                scheduler: JSON.stringify(jobdata)
+            }, (data) => {
+                console.log(data);
+            }).fail((err) => {
+                console.error("fail saving data", err)
             });
         }
 
@@ -273,7 +274,7 @@
             //     alert("ERROR read_boiler_scheduler");
             // });
 
-            fetch('/read_boiler_data.php').then(res => res.json()).then(res => {
+            fetch('./read_boiler_data.php').then(res => res.json()).then(res => {
                 console.log(res);
                 fillData(res.scheduler);
             }).catch(alert);

@@ -3,7 +3,8 @@ header("Access-Control-Allow-Origin:*");
 header("Content-Type: text/plain");
 
 
-$post = file_get_contents("php://input");
+//$post = file_get_contents("php://input");
+$post = $_GET["scheduler"];
 
 
 include "db-settings.php";

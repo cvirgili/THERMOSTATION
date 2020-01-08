@@ -3,7 +3,7 @@
 <head>
     <meta name="viewport" content="width=device-width, user-scalable=no,initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.">
     <meta name="mobile-web-app-capable" content="yes">
-    <link rel="manifest" href="assets/manifest-manual.json">
+    <link rel="manifest" href="./manifest-manual.json">
     <style>
         html,
         body {
@@ -60,11 +60,11 @@
         }
         
         .off {
-            background-image: url('/assets/images/off.jpg');
+            background-image: url('./assets/images/off.jpg');
         }
         
         .on {
-            background-image: url('/assets/images/on.jpg');
+            background-image: url('./assets/images/on.jpg');
         }
         
         nav {
@@ -103,6 +103,7 @@
         <pre id="msg"></pre>
     </div>
     <script>
+        const urlbase = "https://cristiano-virgili.me/thermostation";
         var Status = {
                 relay: 0,
                 scheduler: 0,
@@ -130,11 +131,12 @@
         function setRemoteData() {
             issending = true;
             // console.log("setRemoteData Status", Status);
-            $.post("/save-thermostation-data.php",
-                JSON.stringify(Status), (res) => {
-                    //console.log("setRemoteData res", res);
-                    issending = false;
-                }).fail(failMsg);
+            $.get("./save-thermostation-data.php", {
+                status: JSON.stringify(Status)
+            }, (res) => {
+                console.log("setRemoteData res", res);
+                issending = false;
+            }).fail(failMsg);
         }
 
         function setStatus(stat) {
@@ -148,13 +150,13 @@
         }
 
         function failMsg(msg) {
-            console.error("failMsg", msg);
-            $("#msg").text(msg);
+            console.error("failMsg", JSON.stringify(msg));
+            $("#msg").text(JSON.stringify(msg, null, 1));
         }
 
         function getRemoteStatus(cb) {
             if (issending == true) return;
-            $.get("/read_boiler_data.php", (res) => {
+            $.get(`./read_boiler_data.php`, (res) => {
                 Status = JSON.parse(res).status;
                 setStatus(JSON.parse(res).status);
                 // console.log("get status", Status);
@@ -177,7 +179,7 @@
             getRemoteStatus(start);
         });
     </script>
-    <script type="text/javascript" src="assets/js/sw-init.js"></script>
+    <script type="text/javascript" src="./assets/js/sw-init.js"></script>
 
 </body>
 

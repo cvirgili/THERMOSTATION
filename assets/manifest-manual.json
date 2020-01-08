@@ -2,15 +2,15 @@
     "short_name": "SmartHome",
     "name": "Smart Home",
     "icons": [{
-        "src": "icons/boiler-icon-512.png",
+        "src": "assets/icons/boiler-icon-512.png",
         "type": "image/png",
         "sizes": "512x512"
     }, {
-        "src": "icons/boiler-icon-192.png",
+        "src": "assets/icons/boiler-icon-192.png",
         "type": "image/png",
         "sizes": "192x192"
     }],
-    "start_url": "https://virgili.netsons.org/manual.html",
+    "start_url": "./manual.html",
     "background_color": "#000000",
     "display": "fullscreen",
     "orientation": "portrait",

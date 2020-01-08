@@ -20,20 +20,5 @@ const settings = require('./modules/Settings');
 //console.log(fs.readFileSync('https://virgili.netsons.org/read_boiler_data.php'));
 
 
-//DB MSSQL
-
-const sql = require('mssql');
-
-
-(async() => {
-    try {
-        // make sure that any items are correctly URL encoded in the connection string
-        await sql.connect(settings.mssqlConfig);
-        console.log('connected');
-        const result = await sql.query `select * from THERMOSTATION where id = 1`
-        console.log('resultr', esult);
-    } catch (err) {
-        // ... error checks
-        console.error(err);
-    }
-})();
+const data = JSON.parse(fs.readFileSync(__dirname + '/scheduler.json'));
+console.log(JSON.stringify(data));
